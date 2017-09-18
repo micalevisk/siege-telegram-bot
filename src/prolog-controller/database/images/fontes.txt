@@ -1,0 +1,2 @@
+bandeiras:    https://pt.wikipedia.org/wiki/Lista_de_bandeiras_do_Brasil
+diagrama RIR: http://erdplus.com
