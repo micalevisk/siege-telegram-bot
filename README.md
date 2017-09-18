@@ -1,20 +1,33 @@
+<div align="center">
+  <a href="https://telegram.me/SIEGE_BR_bot">
+    <img src="https://img.shields.io/badge/%F0%9F%92%AC%20Telegram-SIEGE_BR_bot-blue.svg" />
+  </a>
+  <a href="https://heroku.com">
+    <img src="http://heroku-badge.herokuapp.com/?app=siege-telegram-bot" />
+  </a>
+  <div>Sistema Inteligente de Ensino de Geografia para o Telegram</div>
+  <sub>
+    by
+    <a href="https://github.com/micalevisk">Micael Levi</a>
+  </sub>
+</div>
+
 <img src="http://icomp.ufam.edu.br/professores/images/ufam.png" width="150" align="right">
 
 
-### Tarefa I - SIEGE (Sistema Inteligente de Ensino de Geografia)
 > 18/08/2017 ⇒ 17/09/2017
 
 ----------------------------------------
 
 **Curso:** Ciência da Computação <br>
 **Professor:** José Francisco Netto <br>
-**Aluno:** Micael Levi -- 21554923 <br>
+**Aluno:** Micael Levi - 21554923 <br>
 
 ----------------------------------------
 
 
 
-## [SIEGE-telegram-bot/src/controllers/prolog/database](SIEGE-telegram-bot/src/controllers/prolog/database)
+## [src/prolog-controller/database](src/prolog-controller/database)
 
 Os fatos disponíveis nos programas dispostos neste diretório são:
 > - `regiao(?Nome, ?QuantidadeEstados)`
@@ -23,17 +36,17 @@ Os fatos disponíveis nos programas dispostos neste diretório são:
 > - `municipio(?Nome, ?NomeEstado)`
 
 Pensando nos fatos em termos de tabela, as relações de integridade referencial ficam da seguinte forma:
-<img alt="diagrama RIR" src="SIEGE-telegram-bot/src/prolog-controller/database/images/diagrama-integridade-referencial.png" width="780">
+<img alt="diagrama RIR" src="src/prolog-controller/database/images/diagrama-integridade-referencial.png" width="780">
 
 
 -------------
 
-# DEMO
-[@SIEGE_BR_bot](t.me/SIEGE_BR_bot)
+## DEMO
+Entre em contato com o bot [@SIEGE_BR_bot](t.me/SIEGE_BR_bot) no aplicativo Telegram
 
 # Perguntas que serão respondidas
 > - as perguntas listadas a seguir contém apenas palavras-chave que o bot entenderá _(case insensitive)_
-> - algumas palavras podem ser substituídas por seus sinônimos que estão listados em {{...}}
+> - algumas palavras podem ser substituídas por seus sinônimos que estão listados em [sinonimos.js](src/brain/grammar/sinonimos.js)
 > - termos entre colchetes indicam que estes são opcionais; a barra indica uma alternativa
 > - os substantivos prórprios deve iniciar em maiúsculo (como dita a gramática da língua)
 
@@ -98,30 +111,31 @@ Pensando nos fatos em termos de tabela, as relações de integridade referencial
 
 | no. | regex |
 |:----|:------|
-| 1   | `^(?:qual) .*\b(capital)\b.+d[oea] .+`
+| 1   | `^(?:qual) .*\bcapital\b.+d[oea] (.+)`
 | 2   | `^(?:qual) .*\b(capital)\b.+do (brasil)\b.+`
-| 3   | `^.*\b(município) (?:d[oe] )?.+ é (capital) d[oea] .+`
-| 4   | `^(existe) .*(?:algum) (estado) (cuja) .*\b(capital) .+ mesmo nome .*\bd[oe] .+`
-| 5   | `.+ (é) (?:[ao] .*)?(capital) de (qual) (estado)\b.+`
-| 6   | `.+ (é) (?:[ao] .*)?(capital) de (algum) (estado)\b.+`
-| 7   | `.+ (é) (?:[ao] .*)?(capital) d[oea] .+`
+| 3   | `^.*\bmunicípio (?:d[oe] )?(.+) é capital d[oea] (.+)`
+| 4   | `^(existe) .*algum estado cuja .*\bcapital .+ mesmo nome .*\bd[oe] .+`
+| 5   | `(.+) é (?:[ao] .*)?capital de qual estado\b.+`
+| 6   | `(.+) é (?:[ao] .*)?capital de algum estado\b.+`
+| 7   | `(.+) é (?:[ao] .*)?capital d[oea] (.+)`
 | 8   | `^(?:qual) .*\b(estado) .+ (mais) (municípios)\b.+`
 | 9   | `^(?:qual) .*\b(estado) .+ (menos) (municípios)\b.+`
-| 10  | `^(?:quais) (estados) .*\b(estão) .+`
-| 11  | `^(?:quais) .*\b(regiões) .*\b(possuem) .*\b(até) \d+ (estados)\b.+`
+| 10  | `^(?:quais) estados .*\bestão (.+)`
+| 11  | `^(?:quais) .*\bregiões .*\bpossuem .*\baté (\d+) estados\b.+`
 | 12  | `^(?:quantos) (estados) .*\b(brasil) (tem)\b.+`
 | 13  | `^(?:quantos) estados .*\b(?:região)? (.+) delimita\b.+`
-| 14  | `^(?:quant[oa]s) (municípios) o (estado) .+ (tem)\b.+`
-| 15  | `^.+ (fica) .+ (qual) (estado)`
-| 16  | `^.+ (fica) .*\bna (região) .+`
-| 17  | `^.+ (fica) .+ (qual) (região)`
-| 18  | `^(?:qual) .*\b(tamanho) (territorial) d[oe] (estado) .+`
-| 19  | `^(?:qual) (estado) .+ (menor) (tamanho)\b.+`
-| 20  | `^(?:qual) (estado) .+ (maior) (tamanho)\b.+`
-| 21  | `^(?:qual) .*\b(tamanho) (territorial) do (brasil)\b.+`
+| 14  | `^(?:quant[oa]s) municípios [oa]? (?:estado )?(.+) tem\b.+`
+| 15  | `^(.+) fica .+ qual estado\b.+`
+| 16  | `^(.+) fica .*\bna região (.+)`
+| 17  | `^(.+) fica .+ qual região\b.+`
+| 18  | `^(?:qual) .*\btamanho territorial d[oea] estado (.+)`
+| 19  | `^(?:qual) estado .+ menor tamanho\b.+`
+| 20  | `^(?:qual) estado .+ maior tamanho\b.+`
+| 21  | `^(?:qual) .*\btamanho territorial do brasil\b.+`
 | 22  | `^(?:quais) .+ (estados) .+ (maior) e (menor) (tamanho)\b.+`
-| 36  | `^(?:o que).+ (é) para .*\b(brasil)\b.+`
+| 36  | `^(?:o que) (.+) é para .*\bbrasil\b.+`
 | 37  | `^(?:qual) .+ bandeira d[oea] (.+)`
+
 
 # Consultas para as perguntas <small>(implementadas)</small>
 > - O símbolo '+' indica que a variável (que segue) deve ser uma entrada, i.e., ter valor.
