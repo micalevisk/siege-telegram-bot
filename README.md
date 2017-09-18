@@ -14,7 +14,6 @@
 
 <img src="http://icomp.ufam.edu.br/professores/images/ufam.png" width="150" align="right">
 
-
 > 18/08/2017 ⇒ 17/09/2017
 
 ----------------------------------------
