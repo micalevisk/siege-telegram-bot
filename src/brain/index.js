@@ -99,8 +99,6 @@ class Brain {
     const msgNormalizada = parser.normalizeText(msg, true)
 
     for (let q in querys) { // NÃO USAR! https://hacks.mozilla.org/2015/04/es6-in-depth-iterators-and-the-for-of-loop/
-      console.log(querys[q].regex)
-
       const match = querys[q].regex.test(msgNormalizada)
       if (!match) continue
       const currQuery = querys[q].execRegexTo(msgNormalizada)

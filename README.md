@@ -40,7 +40,43 @@ Pensando nos fatos em termos de tabela, as relações de integridade referencial
 
 -------------
 
-## DEMO
+## Instalação
+<div align="center">
+  <table align="center">
+    <tr align="center">
+      <td align="center">
+        <b>
+          <a href="https://nodejs.org">
+            Node.Js v8
+          </a>
+        </b>
+        <div>
+           &nbsp; &nbsp; &nbsp; &nbsp; pré-requisito &nbsp; &nbsp; &nbsp; &nbsp;
+        </div>
+      </td>
+      <td align="center">
+        <b>clonar este repositório</b>
+        <div>
+          &nbsp; &nbsp; <kbd>git clone https://github.com/micalevisk/siege-telegram-bot</kbd> &nbsp; &nbsp;
+        </div>
+      </td>
+      <td align="center">
+        <b>🙏</b>
+        <div>
+          &nbsp; &nbsp; <kbd>npm install</kbd> &nbsp; &nbsp;
+        </div>
+      </td>
+      <td align="center">
+        <b>pegue o token</b>
+        <div>
+          &nbsp; &nbsp; com o <a href="http://t.me/BotFather">@BotFather</a> &nbsp; &nbsp;
+        </div>
+      </td>
+    </tr>
+  </table>
+</div>
+
+## ~~DEMO~~
 Entre em contato com o bot [@SIEGE_BR_bot](http://t.me/SIEGE_BR_bot) no aplicativo Telegram
 
 # Perguntas que serão respondidas
