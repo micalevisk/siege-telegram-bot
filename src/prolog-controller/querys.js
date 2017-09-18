@@ -6,7 +6,7 @@
  * FIXME:
  * - tratar casos onde os nomes próprios não são identificados (dados como null)
  * TODO:
- * - iddentificar quando usar o plural e o singular
+ * - identificar quando usar o plural e o singular
  * - retornar uma consulta segura, i.e., verificar se as entradas são válidas
  * - Adicionar emojis de acordo com o grau de emoção da resposta
  */
