@@ -32,7 +32,7 @@ const sinonimos = {
 }
 
 /**
- * Troca todos as ocorrência de uma palavra
+ * Troca todos as ocorrências de uma palavra
  * pelo seu sinônimo "principal" (mais usado).
  * Que estão listados acima.
  * @param {string} str
