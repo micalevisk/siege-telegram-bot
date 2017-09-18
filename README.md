@@ -42,7 +42,7 @@ Pensando nos fatos em termos de tabela, as relações de integridade referencial
 -------------
 
 ## DEMO
-Entre em contato com o bot [@SIEGE_BR_bot](t.me/SIEGE_BR_bot) no aplicativo Telegram
+Entre em contato com o bot [@SIEGE_BR_bot](http://t.me/SIEGE_BR_bot) no aplicativo Telegram
 
 # Perguntas que serão respondidas
 > - as perguntas listadas a seguir contém apenas palavras-chave que o bot entenderá _(case insensitive)_
