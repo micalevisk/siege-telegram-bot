@@ -4,7 +4,7 @@
 
 const brain = require('./brain')
 const strUtils = require('../lib/utils/string_utils')
-const { Extra, reply } = require('telegraf')
+const { Extra, reply, mount } = require('telegraf')
 const defaultReplyOptions = Extra.HTML().notifications(false).webPreview(false)
 /*************************************************/
 
@@ -18,7 +18,7 @@ const COMMANDS_AVAILABLE = `${strUtils.asBold('Olá, eu posso te ajudar a conhec
 Me faça algumas perguntas sobre o Brasil geográfico que talvez eu saiba lhe responder 😊
 
 comando disponível:
-${strUtils.asCode('/help')} - ${strUtils.asItalic('mostra as instruções para o uso correto')}
+${strUtils.asLink('/help', '')} - ${strUtils.asItalic('mostra as instruções para o uso correto')}
 `
 /**************************************************************************************************/
 
@@ -49,12 +49,15 @@ function bandeiraMiddleware(ctx, next) {
  * @param {*} ctx
  * @return {promise} envio da resposta
  */
-function callBrainMiddleware(ctx) {
+function callBrainMiddleware(ctx, next) {
   const msg = ctx.message.text
 
   return brain.responderMensagem(msg)
     .then(resposta => ctx.reply(resposta, defaultReplyOptions) )
-    .catch(msgErro => ctx.reply(msgErro, defaultReplyOptions) )
+    .catch((msgErro) => {
+      ctx.reply(msgErro, defaultReplyOptions)
+      return next()
+    })
 }
 
 
