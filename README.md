@@ -1,9 +1,9 @@
 <div align="center">
   <a href="https://telegram.me/SIEGE_BR_bot">
-    <img src="https://img.shields.io/badge/%F0%9F%92%AC%20Telegram-SIEGE_BR_bot-blue.svg" />
+    <img src="https://img.shields.io/badge/%F0%9F%92%AC%20Telegram-SIEGE__BR__bot-blue.svg?style=flat-square" />
   </a>
   <a href="https://heroku.com">
-    <img src="http://heroku-badge.herokuapp.com/?app=siege-telegram-bot" />
+    <img src="http://heroku-badge.herokuapp.com/?app=siege-telegram-bot&style=flat" />
   </a>
   <div>Sistema Inteligente de Ensino de Geografia para o Telegram</div>
   <sub>
@@ -20,7 +20,7 @@
 
 **Curso:** Ciência da Computação <br>
 **Professor:** José Francisco Netto <br>
-**Aluno:** Micael Levi - 21554923 <br>
+**Aluno:** Micael Levi &horbar; 21554923 <br>
 
 ----------------------------------------
 
@@ -57,7 +57,7 @@ Pensando nos fatos em termos de tabela, as relações de integridade referencial
       <td align="center">
         <b>clonar este repositório</b>
         <div>
-          &nbsp; &nbsp; <kbd>git clone https://github.com/micalevisk/siege-telegram-bot</kbd> &nbsp; &nbsp;
+          &nbsp; <kbd>git clone https://github.com/micalevisk/siege-telegram-bot</kbd> &nbsp;
         </div>
       </td>
       <td align="center">
@@ -75,6 +75,12 @@ Pensando nos fatos em termos de tabela, as relações de integridade referencial
     </tr>
   </table>
 </div>
+
+Crie um arquivo `.env` do diretório raiz com o seguinte conteúdo:
+```
+BOT_TOKEN = <SEU TOKEN AQUI>
+```
+E execute `npm start`
 
 ## ~~DEMO~~
 Entre em contato com o bot [@SIEGE_BR_bot](http://t.me/SIEGE_BR_bot) no aplicativo Telegram
