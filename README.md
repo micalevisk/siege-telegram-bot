@@ -12,21 +12,7 @@
   </sub>
 </div>
 
-<img src="http://icomp.ufam.edu.br/professores/images/ufam.png" width="150" align="right">
-
-> 18/08/2017 ⇒ 17/09/2017
-
-----------------------------------------
-
-**Curso:** Ciência da Computação <br>
-**Professor:** José Francisco Netto <br>
-**Aluno:** Micael Levi &horbar; 21554923 <br>
-
-----------------------------------------
-
-
-
-## [src/prolog-controller/database](src/prolog-controller/database)
+## Sobre a base de conhecimento em [src/prolog-controller/database](src/prolog-controller/database)
 
 Os fatos disponíveis nos programas dispostos neste diretório são:
 > - `regiao(?Nome, ?QuantidadeEstados)`
@@ -76,11 +62,11 @@ Pensando nos fatos em termos de tabela, as relações de integridade referencial
   </table>
 </div>
 
-Crie um arquivo `.env` do diretório raiz com o seguinte conteúdo:
+Crie um arquivo de nome **`.env`** do diretório raiz com o seguinte conteúdo:
 ```
 BOT_TOKEN = <SEU TOKEN AQUI>
 ```
-E execute `npm start`
+E execute **`npm start`** no terminal
 
 ## ~~DEMO~~
 Entre em contato com o bot [@SIEGE_BR_bot](http://t.me/SIEGE_BR_bot) no aplicativo Telegram
