@@ -1,20 +1,21 @@
 {
   "name": "siege-telegram-bot",
   "version": "1.0.0",
-  "description": "Sistema Inteligente de Ensino de Geografia do Brasil para o apliticativo Telegram",
+  "description": "Sistema Inteligente de Ensino de Geografia do Brasil para o aplicativo Telegram",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/micalevisk/IA-2017-2.git"
+    "url": "git+https://github.com/micalevisk/siege-telegram-bot.git"
   },
   "keywords": [
     "swi-prolog",
     "telegrambot",
-    "ia"
+    "ia",
+    "brasil",
+    "geografia"
   ],
   "author": "Micael Levi L. C.",
   "license": "MIT",
@@ -22,9 +23,9 @@
     "node": ">=7.6.0"
   },
   "bugs": {
-    "url": "https://github.com/micalevisk/IA-2017-2/issues"
+    "url": "https://github.com/micalevisk/siege-telegram-bot/issues"
   },
-  "homepage": "https://github.com/micalevisk/IA-2017-2#readme",
+  "homepage": "https://github.com/micalevisk/siege-telegram-bot#readme",
   "dependencies": {
     "dotenv": "^4.0.0",
     "natural": "^0.5.4",
@@ -34,8 +35,8 @@
   "devDependencies": {
     "eslint": "^4.6.1",
     "eslint-config-airbnb": "^15.1.0",
+    "eslint-plugin-jsx-a11y": "^5.1.1",
     "eslint-plugin-import": "^2.7.0",
-    "eslint-plugin-jsx-a11y": "^6.0.2",
     "eslint-plugin-react": "^7.3.0"
   }
 }
