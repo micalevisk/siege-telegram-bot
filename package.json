@@ -4,7 +4,8 @@
   "description": "Sistema Inteligente de Ensino de Geografia do Brasil para o aplicativo Telegram",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "freshtall": "npm cache clean --force && rm -rf node_modules && rm -f package-lock.json && npm install"
   },
   "repository": {
     "type": "git",
