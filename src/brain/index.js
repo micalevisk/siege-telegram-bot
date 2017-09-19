@@ -9,13 +9,13 @@
  * Ou seja, realiza a interface entre o Telegram Bot e o Swi Prolog.
  */
 
+const fs   = require('fs')
+const path = require('path')
+
 const strUtils = require('../../lib/utils/string_utils')
-const parser = require('./grammar/parser')
+const parser   = require('./grammar/parser')
 const { prologController, querys } = require('../prolog-controller')
 
-// =============================== external =============================== //
-const fs = require('fs')
-const path = require('path')
 const PATH_IMAGES = path.join(__dirname, '../prolog-controller/database/images')
 
 
@@ -23,7 +23,6 @@ const PATH_IMAGES = path.join(__dirname, '../prolog-controller/database/images')
  *
  * @param {string} img Nome da imagem (em database/images)
  * @return {{source:string}|null} O caminho completo para a imagem
- * utiliza metadados
  */
 function getImageSource(img) {
   let fileContents;

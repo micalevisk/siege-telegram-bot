@@ -11,23 +11,24 @@
  * - Adicionar emojis de acordo com o grau de emoção da resposta
  */
 
-/* eslint-disable comma-style, comma-spacing */
+/* eslint-disable comma-style, comma-dangle, comma-spacing */
 
 require('../../lib/typedefs')
 const { prologlistToArray } = require('../../lib/utils/object_utils')
 const parser = require('../brain/grammar/parser')
 
-// ============================ wrappers ============================ //
+// ============================ WRAPPERS ============================ //
 const normalizarEstado = nomeEstado => parser.normalizarNomeEstado(nomeEstado)
-const normalizarNome = nomeProprio => parser.normalizarNomeProprio(nomeProprio)
-const primeiroNome = (str, inicio = 0) => parser.getPrimeiroSubstantivoProprioNormalizado(str, inicio)
-const primeiroNumero = (str, inicio = 0) => parser.getPrimeiroNumero(str, inicio).numero
-// ================================================================== //
+const normalizarNome   = nomeProprio => parser.normalizarNomeProprio(nomeProprio)
+const primeiroNome     = (str, inicio = 0) => parser.getPrimeiroSubstantivoProprioNormalizado(str, inicio)
+const primeiroNumero   = (str, inicio = 0) => parser.getPrimeiroNumero(str, inicio).numero
+// ------------------------------------------------------------------ //
 
-
-const DEFAULT_NO = 'Não 😬'
-const DEFAULT_YES = 'Sim! 😃'
+// ================= RESPOSTAS PADRÃO ================= //
+const DEFAULT_NO    = 'Não 😬'
+const DEFAULT_YES   = 'Sim! 😃'
 const DEFAULT_ERROR = 'Não entendi 💩, repita, por favor'
+// ---------------------------------------------------- //
 
 
 /**
