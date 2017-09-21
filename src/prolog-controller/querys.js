@@ -477,7 +477,7 @@ const q16 = {
   ,resposta: (saidas, entradas) => {
     return (saidas)
            ? `${DEFAULT_YES} ${normalizarNome(entradas.Nome)} fica na região ${normalizarNome(entradas.Regiao)}`
-           : `${DEFAULT_NO} ${normalizarNome(entradas.Nome)} não está nessa região`
+           : DEFAULT_NO
   }
 }
 
@@ -507,7 +507,7 @@ const q17 = {
   ,resposta: (saidas, entradas) => {
     return (saidas.regiao)
            ? `${normalizarNome(entradas.Nome)} se localiza na região ${normalizarNome(saidas.regiao)}`
-           : `${normalizarNome(entradas.Nome)} não está no Brasil`
+           : 'Não está no Brasil'
   }
 }
 
@@ -537,7 +537,7 @@ const q18 = {
   ,resposta: (saidas, entradas) => {
     return (saidas.estado)
            ? `Atualmente o tamanho territorial ${normalizarEstado(entradas.Estado)} é ${saidas.tamanho} quilômetros quadrados`
-           : `${normalizarNome(entradas.Estado)} não é um estado brasileiro (ou está escrito errado)`
+           : 'Não é um estado brasileiro'
   }
 }
 
