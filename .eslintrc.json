@@ -2,13 +2,11 @@
   "extends": "airbnb",
   "env": {
     "commonjs": true,
-    "browser": true,
     "es6": true
   },
   "rules": {
     "jsx-a11y/href-no-hash": 0,
 
-    // "indent": ["error", 2, { "VariableDeclarator": { "let": 2, "const": 3 }, "MemberExpression": 1, "ArrayExpression": 1, "ObjectExpression": 1, "ignoredNodes": ["ConditionalExpression"] }],
     "indent": 0,
     "max-len": 0,
     "semi": 0,
@@ -20,6 +18,7 @@
     "class-methods-use-this": 0,
     "arrow-body-style": 0,
     "no-plusplus": 0,
+
     "prefer-const": ["error", {"destructuring": "all"}],
     "no-underscore-dangle": ["error", { "allowAfterThis": true }],
     "no-multi-spaces": ["error", { "exceptions": { "VariableDeclarator": true } }]
