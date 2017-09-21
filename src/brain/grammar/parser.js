@@ -89,6 +89,15 @@ function getPrimeiroSubstantivoProprio(str, fromIndex = 0) {
   return { palavra, index: normalizado.indexOf(palavra), length: palavra.length }
 }
 
+/**
+ * Recupera o primeiro nome próprio encontrado
+ * a partir de uma posição, e transforma
+ * os caracteres em minúsculo e escapa
+ * o caractere apóstrofo.
+ * @param {string} str
+ * @param {number} [fromIndex=0]
+ * @return {string|null}
+ */
 exports.getPrimeiroSubstantivoProprioNormalizado = (str, fromIndex = 0) => {
   const nome = getPrimeiroSubstantivoProprio(str, fromIndex)
   return (nome) ? nome.palavra.toLowerCase().replace(/'/g, "\\'") : null
@@ -98,6 +107,7 @@ exports.getPrimeiroSubstantivoProprioNormalizado = (str, fromIndex = 0) => {
 /**
  * Padroniza o nome de um estado brasileiro
  * capitalizando-o e adicionando a sua devida preposição.
+ * Utilizado na exibição.
  * @param {string} nomeEstado
  * @return {string}
  */
@@ -109,6 +119,7 @@ exports.normalizarNomeEstado = (nomeEstado) => {
  * Capitaliza todos os primeiros caracteres
  * das palavras no nome, visando as regras
  * gramaticais da língua brasileira.
+ * Utilizado na exibição.
  * @param {string} nome
  * @return {string}
  */
