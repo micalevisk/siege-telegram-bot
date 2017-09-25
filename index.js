@@ -20,8 +20,6 @@
  * THE SOFTWARE.
  */
 
-
-/********************************************************/
 const path = require('path')
 require('dotenv').load({
   path: path.join(__dirname, '.env'),
@@ -29,16 +27,5 @@ require('dotenv').load({
 
 const Telegraf = require('telegraf')
 const app = new Telegraf(process.env.BOT_TOKEN)
-/********************************************************/
-
-/*
-app.use((ctx, next) => {
-  const start = new Date()
-  return next().then(() => {
-    const ms = new Date() - start
-    console.log('[BOT] response time: %sms', ms) // log
-  })
-})
-*/
 
 require('./src/bot')(app)
