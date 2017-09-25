@@ -128,7 +128,7 @@ Entre em contato com o bot [@SIEGE_BR_bot](http://t.me/SIEGE_BR_bot) no aplicati
 -->
 
 ### *Extras*
-36. O que [oa] `Estado`/`Municipio`/`Regiao` é para o Brasil?
+36. O que [o/a] `Estado`/`Municipio`/`Regiao` é para o Brasil?
 37. Qual [é] a bandeira do/de/da `Estado`/Brasil?
 
 
