@@ -2,6 +2,9 @@
   <a href="https://telegram.me/SIEGE_BR_bot">
     <img src="https://img.shields.io/badge/%F0%9F%92%AC%20Telegram-SIEGE__BR__bot-blue.svg?style=flat-square" />
   </a>
+  <a href="">
+    <img src="https://badge.waffle.io/micalevisk/siege-telegram-bot.png?columns=all&style=flat-square" />
+  </a>
   <a href="https://heroku.com">
     <img src="http://heroku-badge.herokuapp.com/?app=siege-telegram-bot&style=flat" />
   </a>
@@ -11,6 +14,10 @@
     <a href="https://github.com/micalevisk">Micael Levi</a>
   </sub>
 </div>
+
+<!-- ## Atividades do Projeto 
+[![Burndown Graph](https://graphs.waffle.io/area/language-latex/throughput.svg)](https://waffle.io/area/language-latex/metrics)
+-->
 
 ## Sobre a base de conhecimento em [src/prolog-controller/database](src/prolog-controller/database)
 
@@ -132,6 +139,7 @@ Entre em contato com o bot [@SIEGE_BR_bot](http://t.me/SIEGE_BR_bot) no aplicati
 37. Qual [é] a bandeira do/de/da `Estado`/Brasil?
 
 
+<!-- TODO: alterar RegExs para RiveScript (.rive) patterns [https://www.rivescript.com/docs/tutorial] -->
 ## Expressões regulares utilizadas para identificar as perguntas
 > - o texto deve ser truncado (espaços excedentes removidos) e a comparação deve ser case insensitive
 > - os termos utilizados no casamento são os sinônimos principais
