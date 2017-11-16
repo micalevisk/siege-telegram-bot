@@ -26,6 +26,12 @@ require('dotenv').load({
 })
 
 const Telegraf = require('telegraf')
-const app = new Telegraf(process.env.BOT_TOKEN)
+const initializeBot = require('./src/bot')
 
-require('./src/bot')(app)
+const app = new Telegraf(process.env.BOT_TOKEN)
+const startRivescript = require('./src/rivescript-controller')
+
+startRivescript((rsBrain) => {
+  initializeBot(app, rsBrain)
+})
+
