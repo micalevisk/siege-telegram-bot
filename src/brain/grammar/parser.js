@@ -143,19 +143,12 @@ exports.getPrimeiroNumero = (str, fromIndex = 0) => {
 }
 
 /**
- * Remove brancos desnecessários
- * e deixa todos os caracteres (exceto o primeiro) minúsculos.
- * Além de alterar todos as palavras que possuem
- * um sinônimo "casual" (definido no dicionário).
- * @param {string} str
- * @param {boolean} [fixSinonimos=false]
- * @return {string}
- * @see normalização
+ * Remover caracteres tendenciosos,
+ * sem prejudicar o processamento
+ * do RiveScript.
+ * @param {string} str Texto a ser tratado
+ * @return {string} O texto tratado
  */
-exports.normalizeText = (str, fixSinonimos = false) => {
-  const normalizado = splitIntoWords( str.trim().replace(/\s{2,}/, ' ') )
-      .map(allToLowerExceptFirst)
-      .join(' ')
-
-  return (fixSinonimos) ? padronizarSinonimos(normalizado) : normalizado
+exports.normalizeText = (str) => {
+  return str.trim().replace(/[\\/'"]/g, '')
 }
