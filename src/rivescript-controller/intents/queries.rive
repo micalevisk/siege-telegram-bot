@@ -1,0 +1,62 @@
+! version = 2.0
+
+/**
+ * Abaixo devem estar os padrões
+ * que retornem consultas que usem predicados válidos
+ * do banco de conhecimentos no 'prolog-controller'.
+ * A consulta retornada para uma pergunta será o ponto
+ * de partida para a execução do Prolog.
+ *
+ * Os templates que iniciem com "!" (sem aspas)
+ * serão consideradas como consultas, e não respostas.
+ *
+ * ------ terminologias ------
+ * NC  = NomeCapital
+ * NCF = NomeCapitalFormatado
+ */
+
+
+/******************************* parser strings *******************************/
+// allFirstToUpper(str:string) -> string
+> object allFirstToUpper javascript
+  const str = args[0];
+  if ((!str) || (str.length < 3)) return str;
+  const re = /([ÀÈÌÒÙÁÉÍÓÚÃÕÇÀ-ÿA-Z])([^\s]+)/gi;
+  const fixed = str.replace(/\\'/g, "'");
+
+  const firstChar = fixed.charAt(0);
+  if (!firstChar.match(/[ÀÈÌÒÙÁÉÍÓÚÃÕÇÀ-ÿA-Za-z]/)) return fixed;
+
+  const newstr = fixed.replace(re, (match, firstCharWord, restWord) => {
+    if (restWord.length < 2) return firstCharWord + restWord;
+    return (restWord.charAt(0) === '\'')
+           ? firstCharWord.toLowerCase() + restWord.substr(0, 2).toUpperCase() + restWord.substr(2).toLowerCase()
+           : firstCharWord.toUpperCase() + restWord.toLowerCase();
+  });
+
+  return newstr.replace(/-./g, match => match.toUpperCase());
+< object
+/******************************************************************************/
+
+
+
+/* e.g.:
+?- capital('rio grande do sul', NC),nome_proprio(NC, NCF),atomics_to_string(["A capital do Rio Grande do Sul é ", NCF], Resposta).
+Resposta = "A capital do Rio Grande do Sul é {porto alegre}".
+*/
+
+// (1)
++ qual [a] capital (d(e|a|o)) *
+- !capital('<star3>', NC),
+^ nome_proprio(NC, NCF),
+^ atomics_to_string(["A capital <star1> <call>allFirstToUpper <star3></call> é ", NCF], Resposta).
+
+// (2)
++ qual [a] capital do brasil
+- !capital(brasil, NC),
+^ nome_proprio(NC, NCF),
+^ atomics_to_string([NCF, " é a capital do Brasil!"], Resposta).
+
+// (3)
++ [a] (@cidade) (d(e|a|o)) * é capital (d(e|a|o)) *
+- !capital('<star6>', '<star3>').

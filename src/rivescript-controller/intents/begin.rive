@@ -1,0 +1,21 @@
+! version = 2.0
+
+> begin
+	+ request // This trigger is tested first.
+	- {ok}    // An {ok} in the response means it's okay to get a real reply
+< begin
+
+// Bot Variables
+! var name     = SIEGE
+! var fullname = Sistema Inteligente de Ensino de Geografia
+! var sex      = masculino
+! var location = Brasil
+! var author   = Micael Levi
+! var job      = professor robô
+! var website  = www.github.com/micalevisk/siege-telegram-bot
+
+// Bot Substitutions
+! sub o = a
+
+// Set arrays (sinônimos)
+! array cidade = município municipio
