@@ -13,9 +13,9 @@
 
 /* eslint-disable comma-style, comma-dangle, comma-spacing */
 
-require('../../lib/typedefs')
-const { prologlistToArray } = require('../../lib/utils/object_utils')
-const parser = require('../brain/grammar/parser')
+require('../../../lib/typedefs')
+const { prologlistToArray } = require('../../../lib/utils/object_utils')
+const parser = require('../../brain/grammar/parser')
 
 // ============================ WRAPPERS ============================ //
 const normalizarEstado = nomeEstado => parser.normalizarNomeEstado(nomeEstado)

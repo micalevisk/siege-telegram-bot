@@ -4,7 +4,8 @@
 :- ['regioes',
     'estados',
     'tamanhos',
-    'municipios'].
+    'municipios',
+    'formatos'].
 
 
 /* ========================== REGRAS ========================== */

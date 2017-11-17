@@ -1,3 +1,4 @@
+const marcadores = require('./marcadores')
 const { splitIntoWords } = require('../../../lib/utils/string_utils')
 const { nomeEstadoComoPreposicao } = require('./preposicoes')
 const { padronizarSinonimos } = require('./sinonimos')
@@ -149,6 +150,43 @@ exports.getPrimeiroNumero = (str, fromIndex = 0) => {
  * @param {string} str Texto a ser tratado
  * @return {string} O texto tratado
  */
-exports.normalizeText = (str) => {
+exports.normalizarTexto = (str) => {
   return str.trim().replace(/[\\/'"]/g, '')
+}
+
+/**
+ * Identifica o texto contido
+ * entre os caracteres marcadores
+ * de nome próprio, e retorna seu conteúdo e meta-dados.
+ * FIXME: não aceita múltiplas tags ou tags aninhadas
+ * @param {string} str
+ * @return {{start:number, end:number, text:string}}
+ */
+/* eslint-disable comma-dangle */
+function extrairNomeProprio(str) {
+  const start = str.indexOf(marcadores.nomeproprio.inicio)
+  const end   = str.lastIndexOf(marcadores.nomeproprio.fim)
+
+  return { start, end, text: str.substring(start + 1, end) }
+}
+
+
+/**
+ * Analisa o texto para substituir/tratar
+ * todas as marcações encontradas
+ * por seus valores válidos.
+ * @param {string} strComTags
+ * @return {string} O texto tratado (sem marcações)
+ */
+exports.tratarMarcadores = (strComTags) => {
+  let strSemTags = strComTags
+
+  // tratar nomes próprios
+  const { start, end, text } = extrairNomeProprio(strSemTags)
+  strSemTags = strSemTags.substring(0, start) + allFirstToUpper(text) + strSemTags.substring(end + 1, strSemTags.length)
+
+  // TODO verificar outras marcações e incrementar abaixo
+  //...
+
+  return strSemTags
 }

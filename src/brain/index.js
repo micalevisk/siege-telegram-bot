@@ -14,10 +14,12 @@ const path = require('path')
 
 const strUtils = require('../../lib/utils/string_utils')
 const parser   = require('./grammar/parser')
-const { prologController, querys } = require('../prolog-controller')
+const { PrologController, queries } = require('./prolog-controller')
 
-const PATH_IMAGES = path.join(__dirname, '../prolog-controller/database/images')
+const PATH_IMAGES = path.join(__dirname, './prolog-controller/database/images')
+const RSB_USERNAME = 'local-user'
 
+const rsTemplateValido = template => template && !template.startsWith('[ERR:');
 
 /**
  *
@@ -43,8 +45,13 @@ function getImageSource(img) {
  */
 class Brain {
 
-  constructor() {
-    this.plg = prologController
+  /**
+   *
+   * @param {RiveScript} riveScriptBrain
+   */
+  constructor(riveScriptBrain) {
+    this.plg = new PrologController()
+    this.rsb = riveScriptBrain
   }
 
   /**
@@ -68,14 +75,6 @@ class Brain {
 
   /**
    *
-   * @param {string} img Nome da imagem localizada no diretório padrão
-   * @return {{source:string}|null}
-   */
-  getImagem(img) {
-    return getImageSource(img)
-  }
-  /**
-   *
    * @param {string} nomeEstado
    * @return {{filepath:string, caption:string}|{}}
    */
@@ -83,24 +82,40 @@ class Brain {
     if (!nomeEstado) return {}
     const nomeNormalizado = nomeEstado.toLowerCase()
     return {
-      filepath: this.getImagem(`bandeira_${strUtils.changeSpaces(nomeNormalizado)}.png`),
-      caption: `esta é a bandeira ${this.normalizarNomeEstado(nomeNormalizado)}`
+      filepath: getImageSource(`bandeira_${strUtils.changeSpaces(nomeNormalizado)}.png`),
+      caption: `esta é a bandeira ${this.normalizarNomeEstado(nomeNormalizado)}`,
     }
   }
 
   /**
-   * Interface com o Swi Prolog
+   * Interfaceia com o RiveScript e Swi-Prolog.
    * @param {string} msg
    * @return {promise}
    */
-  /* eslint-disable */
   responderMensagem(msg) { // FIXME pensar alternativa menos massante (retirar o loop)
-    const msgNormalizada = parser.normalizeText(msg, true)
+    const msgNormalizada = parser.normalizarTexto(msg, true)
+    const controladorConsulta = async (query) => {
+      const result = await query.next() // dá {} se a resposta for True
+      return result.Resposta || result
+    }
 
-    for (let q in querys) { // NÃO USAR! https://hacks.mozilla.org/2015/04/es6-in-depth-iterators-and-the-for-of-loop/
-      const match = querys[q].regex.test(msgNormalizada)
+    return new Promise((resolve, reject) => {
+      const consultaResultante = this.rsb.reply(RSB_USERNAME, msgNormalizada)
+
+      if ( !rsTemplateValido(consultaResultante) ) return reject(`O que você quis dizer com "${strUtils.asCode(msg)}"? 🤖`) // TODO remover isso
+      if (!consultaResultante.startsWith('!')) return reject(consultaResultante) // não é uma consulta para o Prolog
+
+      return this.plg.executeQuery(consultaResultante.substr(1), controladorConsulta).then((r) => {
+        if (typeof r === 'string') return resolve( parser.tratarMarcadores(r) )
+        return resolve(r ? 'Sim!' : 'Não :l')
+      })
+    })
+
+    /* // §old-version§
+    for (let q in queries) { // NÃO USAR! https://hacks.mozilla.org/2015/04/es6-in-depth-iterators-and-the-for-of-loop/
+      const match = queries[q].regex.test(msgNormalizada)
       if (!match) continue
-      const currQuery = querys[q].execRegexTo(msgNormalizada)
+      const currQuery = queries[q].execRegexTo(msgNormalizada)
 
       return new Promise((resolve, reject) => {
         if (!currQuery) return reject(`O que você quis dizer com ${strUtils.asCode(msg)}? 🤖`)
@@ -114,10 +129,11 @@ class Brain {
     }
 
     return Promise.reject(`Não entendi`)
+    */
   }
 
 }
 
-//========================//
-module.exports = new Brain()
-//========================//
+//===================//
+module.exports = Brain
+//===================//

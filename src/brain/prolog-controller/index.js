@@ -1,6 +1,6 @@
-require('../../lib/typedefs')
+require('../../../lib/typedefs')
 const swipl = require('swipl-stdio')
-const { PATH_MAIN_PL, querys } = require('./config')
+const { PATH_MAIN_PL, queries } = require('./config')
 
 
 /**
@@ -15,9 +15,9 @@ class PrologController {
 
   /**
    *
-   * @param {string} pathInitialProgram
+   * @param {string} [pathInitialProgram]
    */
-  constructor(pathInitialProgram) {
+  constructor(pathInitialProgram = PATH_MAIN_PL) {
     if (!pathInitialProgram || typeof pathInitialProgram !== 'string') throw Error('Arg must be an string')
 
     checkConsult(pathInitialProgram)
@@ -33,13 +33,14 @@ class PrologController {
   executeQuery(query, cb) {
     if (typeof cb !== 'function') throw TypeError('"cb" must be an callback')
     return executeQuery(this.pathInitialProgram, query, cb)
-          .catch((err) => { throw Error('[executequery]', err) })
+          .catch((err) => { throw Error('[prolog-controller::error]', err) })
   }
 
   /**
    *
    * @param {QueryHandler} queryHandler
    * @param {object} [queryInputs={}]
+   * @return {promise}
    */
   executeQueryWithHandler(queryHandler, queryInputs = {}) {
     return this.executeQuery(queryHandler.consulta(queryInputs), queryHandler.controlador)
@@ -83,4 +84,4 @@ async function executeQuery(initialProgram, strQuery, callback) {
 }
 
 
-module.exports = { prologController: new PrologController(PATH_MAIN_PL), querys };
+module.exports = { PrologController, queries };
