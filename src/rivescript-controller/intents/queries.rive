@@ -10,6 +10,9 @@
  * Os templates que iniciem com "!" (sem aspas)
  * serão consideradas como consultas, e não respostas.
  *
+ * TODO:
+ * - verificar tratamento de erros nas consultas
+ *
  * ------ terminologias ------
  * NC  = NomeCapital
  * NCF = NomeCapitalFormatado
@@ -45,18 +48,26 @@
 Resposta = "A capital do Rio Grande do Sul é {porto alegre}".
 */
 
-// (1)
+// ======= :1: =======
 + qual [a] capital (d(e|a|o)) *
+
 - !capital('<star3>', NC),
 ^ nome_proprio(NC, NCF),
-^ atomics_to_string(["A capital <star1> <call>allFirstToUpper <star3></call> é ", NCF], Resposta).
+^ atomics_to_string(["A capital <star1> <call>allFirstToUpper <star3></call> é ", NCF], Resposta).{weight=2}
 
-// (2)
-+ qual [a] capital do brasil
-- !capital(brasil, NC),
+- !capital('<star3>', NC),
 ^ nome_proprio(NC, NCF),
-^ atomics_to_string([NCF, " é a capital do Brasil!"], Resposta).
+^ atomics_to_string([NCF, " é a capital <star1> <call>allFirstToUpper <star3></call>!"], Resposta).
 
-// (3)
-+ [a] (@cidade) (d(e|a|o)) * é capital (d(e|a|o)) *
-- !capital('<star6>', '<star3>').
+// ======= :2: =======
++ * é (@capitalsubstantivo) de (@qualpronome) estado
+- !capital(NE, '<star1>').{weight=2}
+
+
+// ======= :3: =======
++ * é (@capitalsubstantivo) (d(e|a|o)) *
+
+- !capital('<star5>', '<star1>').{weight=2}
+
+- !capital('<star5>', '<star1>').
+
