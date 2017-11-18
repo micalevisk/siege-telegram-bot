@@ -1,0 +1,23 @@
+/**
+ * Abaixo serão listados apenas os arrays;
+ * Indicando sinônimos e versões sem acentuação.
+ * vide https://www.rivescript.com/docs/tutorial#arrays-in-triggers
+ *
+ * Este arquivo foi separado para ser facilmente gerado
+ * a partir de um arquivo texto "mais legível" para leigos.
+ * Por convenção, as palavras devem estar em ordem alfabética.
+ * Além disso, para facilitar a leitura, os nomes dos arrays devem
+ * iniciar pelo sinônimo mais comun seguido da classe gramatical
+ * em PT-BR, sem separadores e com todas as letras em minúsculo.
+ *
+ * auxílio:
+ * https://www.colegioweb.com.br/classes-gramaticais
+ * https://www.dicio.com.br/
+ */
+
+
+! array cidadesubstantivo  = cidade município municipio
+! array capitalsubstantivo = capital sede metrópole metrople
+! array caminhosubstantivo = caminho rota percurso trajetória trajetoria
+! array cujopronome        = cujo|a qual
+! array qualpronome        = qual algum
