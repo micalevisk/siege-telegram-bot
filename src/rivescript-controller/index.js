@@ -11,29 +11,28 @@ const rsBrain = new RiveScript({
   },
 })
 
-rsBrain.unicodePunctuation = new RegExp(/[.,!?;:]/g)
-
+rsBrain.unicodePunctuation = new RegExp(/[.,!?;:"~]/g) // caracteres que serão removidos pelo bot
 
 /**
  * Callback de erro
  * para o carregamento das intenções.
  * @param {string} error
  * @param {number} [batch]
+ * @throws {Error}
  */
 function riveBrainError(error) {
-  console.log('[rivescript-controller::error]', error)
+  throw new Error('[rivescript-controller::error]', error)
 }
 
-
 /**
- *
- * @param {function} ask
- * @param {string} [directoryPath]
+ * Iniciar o bot do RiveScript.
+ * @param {function} cb Função executada se o RS for carregado corretamente (recebe o cérebro do RS)
+ * @param {string} [directoryPath] Caminho para os arquivos .rive
  */
-function startRivescript(ask, directoryPath = PATH_INTENTS) {
+function startRivescript(cb, directoryPath = PATH_INTENTS) {
   rsBrain.loadDirectory(directoryPath, () => {
     rsBrain.sortReplies()
-    ask(rsBrain)
+    cb(rsBrain)
   }, riveBrainError)
 }
 

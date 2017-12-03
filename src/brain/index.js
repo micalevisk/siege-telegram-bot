@@ -14,12 +14,10 @@ const path = require('path')
 
 const strUtils = require('../../lib/utils/string_utils')
 const parser   = require('./grammar/parser')
-const { PrologController, queries } = require('./prolog-controller')
+const { PrologController } = require('./prolog-controller')
 
 const PATH_IMAGES = path.join(__dirname, './prolog-controller/database/images')
-const RSB_USERNAME = 'local-user'
 
-const rsTemplateValido = template => template && !template.startsWith('[ERR:');
 
 /**
  *
@@ -52,6 +50,8 @@ class Brain {
   constructor(riveScriptBrain) {
     this.plg = new PrologController()
     this.rsb = riveScriptBrain
+
+    this.responderMensagem('x é ').then(r => console.log('[RESPOSTA]', r))//DEMO
   }
 
   /**
@@ -89,47 +89,39 @@ class Brain {
 
   /**
    * Interfaceia com o RiveScript e Swi-Prolog.
+   * Executa a resposta, se esta for dada como consulta em Prolog.
    * @param {string} msg
    * @return {promise}
    */
-  responderMensagem(msg) { // FIXME pensar alternativa menos massante (retirar o loop)
-    const msgNormalizada = parser.normalizarTexto(msg, true)
+  responderMensagem(msg) {
+    // const msgNormalizada = parser.normalizarTexto(msg) // feito no bot RS
+
+    /**
+     * Segue a estratégia definida em "rivescript-controller/intents/queries.rive"
+     * @return {string|boolean}
+     */
+    // TODO: inserir módulo de aprendizagem (mensagens com interação)
     const controladorConsulta = async (query) => {
-      const result = await query.next() // dá {} se a resposta for True
-      return result.Resposta || result
+      const resultado = await query.next() // dá {} se a resposta for True
+      if (resultado.Resposta) {
+        return resultado.Resposta
+      } else if (resultado.Respostadada) {
+        return `De acordo com o ${strUtils.asLink(resultado.Nickautor)},\n\n${resultado.Respostadada}`
+      }
+      return 'Não sei te responder...'
     }
 
     return new Promise((resolve, reject) => {
-      const consultaResultante = this.rsb.reply(RSB_USERNAME, msgNormalizada)
+      const respostaIntent = this.rsb.reply('local-user', msg)
 
-      if ( !rsTemplateValido(consultaResultante) ) return reject(`O que você quis dizer com "${strUtils.asCode(msg)}"? 🤖`) // TODO remover isso
-      if (!consultaResultante.startsWith('!')) return reject(consultaResultante) // não é uma consulta para o Prolog
-
-      return this.plg.executeQuery(consultaResultante.substr(1), controladorConsulta).then((r) => {
-        if (typeof r === 'string') return resolve( parser.tratarMarcadores(r) )
-        return resolve(r ? 'Sim!' : 'Não :l')
-      })
-    })
-
-    /* // §old-version§
-    for (let q in queries) { // NÃO USAR! https://hacks.mozilla.org/2015/04/es6-in-depth-iterators-and-the-for-of-loop/
-      const match = queries[q].regex.test(msgNormalizada)
-      if (!match) continue
-      const currQuery = queries[q].execRegexTo(msgNormalizada)
-
-      return new Promise((resolve, reject) => {
-        if (!currQuery) return reject(`O que você quis dizer com ${strUtils.asCode(msg)}? 🤖`)
-
-        return this.plg.executeQueryWithHandler(currQuery, currQuery.params)
+      // TODO: tratar error na consulta (.catch)
+      return this.plg.executeQuery(respostaIntent, controladorConsulta)
         .then((r) => {
-          const respostaMsg = currQuery.resposta(r, currQuery.params)
-          return resolve(respostaMsg)
+          // TODO: realizar parser na resposta visando tanto consultas com retorno 'true' (objeto vazio) quanto 'false'
+          if (typeof r === 'string') return resolve( parser.tratarMarcacoes(r) )
+          return reject(r)
         })
-      })
-    }
-
-    return Promise.reject(`Não entendi`)
-    */
+    })
   }
 
 }
