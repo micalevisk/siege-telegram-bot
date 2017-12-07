@@ -5,7 +5,8 @@
     'estados',
     'tamanhos',
     'municipios',
-    'formatos'].
+    'formatos',
+    'novos_conhecimentos'].
 
 
 /* ========================== REGRAS ========================== */
@@ -14,30 +15,29 @@
 % :- op(700, xfy, [capital_de]).
 % capital_de(NomeCapital, NomeEstado) :- capital(NomeEstado, NomeCapital).
 
-
-%% verificar em qual classe um atom
-%% melhor se identifica.
+%% relacao(+P, +Fact)
+%% verificar em qual classe um atom melhor se identifica.
 relacao(P, Fact) :-
     member(Fact, [regiao, estado, capital, municipio]),
     call(Fact, P), !.
 
 %% regiao(?Nome)
-%% Nome é o nome de uma região que existe no Brasil
+%% Nome é o nome de uma região que existe no Brasil.
 regiao(Nome) :- regiao(Nome, _).
 
 %% regiao_de(+Nome, -NomeRegiao)
-%% Nome é o nome de algum município/estado e NomeRegiao o nome da região em qu ele está
+%% Nome é o nome de algum município/estado e NomeRegiao o nome da região em qu ele está.
 regiao_de(Nome, NomeRegiao) :-
     estado(Nome, _, NomeRegiao, _), !;
     municipio(Nome, Estado), estado(Estado, _, NomeRegiao, _).
 
 %% regioes(-ListaRegioes)
-%% lista das regiões que existem no Brasil
+%% lista das regiões que existem no Brasil.
 regioes(ListaRegioes) :- findall(R, regiao(R, _), ListaRegioes).
 
 
 %% estado(?Nome)
-%% Nome é o nome de um estado brasileiro
+%% Nome é o nome de um estado brasileiro.
 estado(Nome) :- estado(Nome, _, _, _).
 
 %% estados_municipios(-EstadosMunicipios)
@@ -48,7 +48,7 @@ estados_municipios(EstadosMunicipios) :-
 
 %% estados_municipios(-EstadosMunicipios, -EstadosQtdMunicipios)
 %% lista de pares entre estados e seus municípios;
-%% e lista de pares do tipo (Estado-QtdMunicipios) ordenado por QtdMunicipios
+%% e lista de pares do tipo (Estado-QtdMunicipios) ordenado por QtdMunicipios.
 estados_municipios(EstadosMunicipios, EstadosQtdMunicipios) :-
     estados_municipios(EstadosMunicipios),
     map_pairs_list(EstadosMunicipios, E),
@@ -56,20 +56,20 @@ estados_municipios(EstadosMunicipios, EstadosQtdMunicipios) :-
 
 municipio(Nome) :- municipio(Nome, _).
 %% municipios(+NomeEstado, -ListaMunicipios:list(NomeEstado-Municipios))
-%% Lista os municípios que estão delimitados pelo estado de nome NomeEstado
+%% Lista os municípios que estão delimitados pelo estado de nome NomeEstado.
 municipios(NomeEstado, ListaMunicipios) :-
     estados_municipios(PairsAgrupados),
     member(NomeEstado-ListaMunicipios, PairsAgrupados).
 
 %% capital(?NomeEstado, NomeCapital)
-%% O munícipio que é capital de NomeEstado é NomeCapital
-capital(NomeEstado, NomeCapital) :- estado(NomeEstado, _, _, NomeCapital).
+%% O munícipio que é capital de NomeEstado é NomeCapital.
+capital(NomeEstado, NomeCapital) :- estado(NomeEstado, _, _, NomeCapital), !.
 capital('brasil', 'brasília').
 capital(NomeCapital) :- estado(_, _, _, NomeCapital).
 
 
 %% tamanho(+NomeEstado, -Area)
-%% Area é o tamanho territorial (em km^2) do estado de nome NomeEstado
+%% Area é o tamanho territorial (em km^2) do estado de nome NomeEstado.
 tamanho('brasil', Area)   :- tamanhos(Areas), somarAreas(Areas, Area), !.
 tamanho(NomeEstado, Area) :- tamanhos(L), tamanho_(NomeEstado, Area, L).
 tamanho_(NomeEstado, Area, [ (NomeEstado-Area) | _ ]) :- !.
@@ -100,7 +100,7 @@ menor_area(Area, Estado) :-
 map_pairs_list(JoinedPairs, Lengths) :- maplist(list_length, JoinedPairs, Lengths).
 
 %% list_length(Pair)
-%% mapeia um par Key-List para Key-(length(List), List)
+%% mapeia um par Key-List para Key-(length(List), List).
 list_length(Key-List, Key-Length) :- length(List, Length).
 
 %% first(+List, ?First)
