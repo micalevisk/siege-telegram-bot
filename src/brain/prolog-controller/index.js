@@ -1,6 +1,6 @@
 require('../../../lib/typedefs')
 const swipl = require('swipl-stdio')
-const { PATH_MAIN_PL, CHAR_EVAL_PROLOG, queries } = require('./config')
+const { CHAR_EVAL_PROLOG, PATH_MAIN_PL, PATH_CONHECIMENTOS_EXTERNOS } = require('./config')
 
 
 /**
@@ -19,7 +19,6 @@ class PrologController {
    */
   constructor(pathInitialProgram = PATH_MAIN_PL) {
     if (!pathInitialProgram || typeof pathInitialProgram !== 'string') throw Error('Arg must be an string')
-
     checkConsult(pathInitialProgram)
     this.pathInitialProgram = pathInitialProgram
   }
@@ -100,4 +99,4 @@ function parseQuery(strQuery) {
 }
 
 
-module.exports = { PrologController, queries };
+module.exports = PrologController

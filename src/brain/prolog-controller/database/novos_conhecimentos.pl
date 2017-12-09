@@ -1,4 +1,4 @@
-/** <module> Prolog documentation processor
+/** <module> Novos Conhecimentos
 
 Este módulo contém regras para a maniupulação de fatos do
 tipo questao/5 a fim de gerenciar a aprendizagem dinâmica.
@@ -15,58 +15,51 @@ tipo questao/5 a fim de gerenciar a aprendizagem dinâmica.
 
 
 %! incrementar_voto(+Pergunta:string)
-incrementar_voto(Pergunta) :- incrementar_voto(Pergunta, _).
+incrementar_voto(Pergunta, ArquivoConhecimentoExternos) :-
+  incrementar_voto(Pergunta, _, ArquivoConhecimentoExternos).
 
 %! salvar_questao(+Pergunta:string, +RespostaDada:string, +UsernameAutor:string, +IdAutor:int)
-salvar_questao(Pergunta, RespostaDada, UsernameAutor, IdAutor) :- salvar_questao( questao(Pergunta, RespostaDada, UsernameAutor, IdAutor, 0) ).
+salvar_questao(Pergunta, RespostaDada, UsernameAutor, IdAutor, ArquivoConhecimentoExternos) :-
+  salvar_questao( questao(Pergunta, RespostaDada, UsernameAutor, IdAutor, 0), ArquivoConhecimentoExternos ).
 
 
 %! incrementar_voto(+Pergunta:string, -VotosAtualizado:int)
 %  Dada um pergunta que exista no conhecimento adquirido,
 %  computar +1 ao número de votos negativos.
 %  O fato será removido se VotosAtualizado for igual a 3.
-incrementar_voto(Pergunta, VotosAtualizado) :-
+incrementar_voto(Pergunta, VotosAtualizado, ArquivoConhecimentoExternos) :-
   questao(Pergunta, R, A, I, VotosAntigos),
   plus(1, VotosAntigos, VotosAtualizado),
-  ( VotosAtualizado = 3 -> remover_questao(Pergunta);
+  ( VotosAtualizado = 3 -> remover_questao(Pergunta, ArquivoConhecimentoExternos);
   replace_existing_fact( questao(Pergunta,R,A,I,VotosAntigos), questao(Pergunta,R,A,I,VotosAtualizado) ),
-  atualizar_banco() ).
+  atualizar_banco(ArquivoConhecimentoExternos) ).
 
 
 %! remover_questao(+Pergunta:string)
 %  Remove todas as questões que possuem a pergunta (String) passada.
-remover_questao(Pergunta) :-
+remover_questao(Pergunta, ArquivoConhecimentoExternos) :-
   retract( questao(Pergunta,_,_,_,_) ),
-  atualizar_banco().
+  atualizar_banco(ArquivoConhecimentoExternos).
 
 
 %! salvar_questao(+FatoQuestao:)
 %  Insere uma questão no banco.
-salvar_questao(FatoQuestao) :-
+salvar_questao(FatoQuestao, ArquivoConhecimentoExternos) :-
   assertz(FatoQuestao),
-  atualizar_banco().
+  atualizar_banco(ArquivoConhecimentoExternos).
 
 
-%! atualizar_banco()
+%! atualizar_banco(+ArquivoConhecimentoExternos)
 %  recupera todas os fatos darquivo "lock" e lista-os, atualizando.
 %  OBS: na database dinâmica deve-se ter uma declaração "dynamic questao/5".
 %  solução adaptade de https://stackoverflow.com/questions/10857202
-atualizar_banco() :-
-  absolute_file_name('fatos_dinamicos.pl.lock', Abs),
+atualizar_banco(ArquivoConhecimentoExternos) :-
+  absolute_file_name(ArquivoConhecimentoExternos, Abs),
   open(Abs, write, Fd, [ encoding(utf8), lock(write) ]),
   findall(X, source_file(X,Abs), L),
   tell(Fd),
   maplist(listing, L),
   close(Fd).
-
-/* __old__
-atualizar_banco() :-
-  absolute_file_name('fatos_dinamicos.pl.lock', Abs),
-  findall(X, source_file(X,Abs), L),
-  tell('fatos_dinamicos.pl.lock'),
-  maplist(listing, L),
-  told.
-*/
 
 
 %! replace_existing_fact(+OldFact:atom, +NewFact:atom)

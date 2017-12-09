@@ -14,7 +14,7 @@ const path = require('path')
 
 const strUtils = require('../../lib/utils/string_utils')
 const parser   = require('./grammar/parser')
-const { PrologController } = require('./prolog-controller')
+const PrologController = require('./prolog-controller')
 
 const PATH_IMAGES = path.join(__dirname, './prolog-controller/database/images')
 
@@ -90,7 +90,7 @@ class Brain {
       if (res.RespostaDada && typeof res.RespostaDada === 'string') {
         return (id === res.IdAutor)
         ? { text: parser.tratarTexto(res.RespostaDada) }
-        : { respostaDada: parser.tratarTexto(res.RespostaDada), pergunta: res.Pergunta }
+        : { respostaDada: parser.tratarTexto(res.RespostaDada), pergunta: res.Pergunta, qtdVotos: res.Votos }
       }
       if (res.RespostaAusente && typeof res.RespostaAusente === 'string') return { respostaAusente: parser.tratarTexto(res.RespostaAusente), pergunta: res.Pergunta }
       return res

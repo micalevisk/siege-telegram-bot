@@ -82,14 +82,14 @@ function initializeBot(bot, rsBrain) {
 
     const controladorConsulta = async (query) => {
       const res = await query.next()
-      console.log('~>>>', res) // FIXME: inserção da questão não está sendo escrito
-      return res
+      return res !== false
     }
 
     return brain.plg.executeQuery(strQueriesAprendizado.salvarQuestao(ultima_pergunta_identificada, text, username, id), controladorConsulta)
-      .then((r) => {
-        if (r) return ctx.reply('Obrigado por me ensinar!!', DEFAULT_REPLY_OPTIONS.inReplyTo(message_id))
-        return next()
+      .then((salvou) => {
+        return (salvou)
+            ? ctx.reply('Obrigado por me ensinar!!', DEFAULT_REPLY_OPTIONS.inReplyTo(message_id))
+            : next()
       })
   }
 
@@ -120,7 +120,7 @@ function initializeBot(bot, rsBrain) {
           ctx.session.ultima_resposta_dada = r.respostaDada
           ctx.session.ultima_pergunta_identificada = r.pergunta
           return handlerRespostaComInlineKeyboard(ctx, Markup.inlineKeyboard([
-            Markup.callbackButton('⚠️', 'incrementar_votos'),
+            Markup.callbackButton(`⚠️ (${r.qtdVotos})`, 'incrementar_votos'),
             Markup.callbackButton('✅', 'remover_opcoes'),
           ]))
         }
@@ -164,21 +164,28 @@ function initializeBot(bot, rsBrain) {
   bot.action('incrementar_votos', (ctx, next) => {
     const controladorConsulta = async (query) => {
       const res = await query.next()
-      console.log('->>>', res) // FIXME: alteração de VOTOS não está sendo escrita
-      return res
+      return res.Votos
     }
 
     return brain.plg.executeQuery(strQueriesAprendizado.incrementarVoto(ctx.session.ultima_pergunta_identificada), controladorConsulta)
-      .then((r) => {
-        if (r) {
+      .then((qtdVotos) => {
+
+        if (qtdVotos > 3) {
           return ctx.answerCbQuery('voto negativo computado!')
             .then(() => ctx.editMessageText(ctx.session.ultima_resposta_dada, Extra.HTML()))
             .catch((err) => {
               console.log('[bot-incrementar_votos::error]', err)
               return ctx.deleteMessage() // sessão perdida
             })
-        }
-        return next()
+          }
+
+        return ctx.answerCbQuery('resposta removida!!')
+          .then(() => ctx.editMessageText(`${strUtils.asItalic('Desculpe, não sei te responder...')}`, Extra.HTML()))
+          .catch((err) => {
+            console.log('[bot-incrementar_votos::error]', err)
+            return ctx.deleteMessage() // sessão perdida
+          })
+
       })
   })
 
@@ -195,6 +202,10 @@ function initializeBot(bot, rsBrain) {
 
   bot.action('remover_opcoes', (ctx) => {
     return ctx.editMessageText(ctx.session.ultima_resposta_dada, Extra.HTML())
+      .catch((err) => {
+        console.log('[bot-incrementar_votos::error]', err)
+        return ctx.deleteMessage() // sessão perdida
+      })
   })
 
 
