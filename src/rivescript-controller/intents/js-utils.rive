@@ -1,0 +1,38 @@
+! version = 2.0
+
+/**
+ * Abaixo devem constar apenas Object Macro em Javascript
+ * (vide https://www.rivescript.com/docs/tutorial#object-macros)
+ * São funções que provavelmente estarão em outra parte do projeto.
+ * Todas são isoladas e devem ser utilizadas em algum momento pelo bot do RiveScript
+ * para tratar/formatar/organizar as respostas.
+ *
+ * As assinaturas das funções em JS que são definidas aqui,
+ * seguem o type signatures do Ramda, vide
+ * https://github.com/ramda/ramda/wiki/Type-Signatures
+ */
+
+
+/******************************* parser strings *******************************/
+
+// allFirstToUpper :: String -> String
+// Altera para maiúsculo todos as primeiras letras de cada palavra, exceto as palavras menores que 3 ou se a primeira letra for seguida por apóstrofo.
+> object allFirstToUpper javascript
+  const str = args[0];
+  if (str.length < 3) return str;
+  const re = /([ÀÈÌÒÙÁÉÍÓÚÃÕÇÀ-ÿA-Z])([^\s]+)/gi;
+  const fixed = str.replace(/\\'/g, "'");
+
+  const firstChar = fixed.charAt(0);
+  if (!firstChar.match(/[ÀÈÌÒÙÁÉÍÓÚÃÕÇÀ-ÿA-Z]/i)) return fixed;
+
+  const newstr = fixed.replace(re, (match, firstCharWord, restWord) => {
+    if (restWord.length < 2) return firstCharWord + restWord;
+    return (restWord.charAt(0) === '\'')
+           ? firstCharWord.toLowerCase() + restWord.substr(0, 2).toUpperCase() + restWord.substr(2).toLowerCase()
+           : firstCharWord.toUpperCase() + restWord.toLowerCase();
+  });
+
+  return newstr.replace(/-./g, match => match.toUpperCase());
+< object
+/******************************************************************************/
