@@ -9,7 +9,7 @@ tipo questao/5 a fim de gerenciar a aprendizagem dinâmica.
 
 :- encoding(utf8).
 
-%% questao(?Pergunta:string, +Respostadada:string, +UsernameAutor:string, +IdAutor:string, +Votos:int)
+%% questao(?Pergunta:string, +RespostaDada:string, +UsernameAutor:string, +IdAutor:int, +Votos:int)
 :- load_files('fatos_dinamicos.pl.lock', [encoding(utf8)]).
 
 
@@ -17,8 +17,8 @@ tipo questao/5 a fim de gerenciar a aprendizagem dinâmica.
 %! incrementar_voto(+Pergunta:string)
 incrementar_voto(Pergunta) :- incrementar_voto(Pergunta, _).
 
-%! salvar_questao(+Pergunta:string, +Respostadada:string, +UsernameAutor:string, +IdAutor:string)
-salvar_questao(Pergunta, Respostadada, UsernameAutor, IdAutor) :- salvar_questao( questao(Pergunta, Respostadada, UsernameAutor, IdAutor, 0) ).
+%! salvar_questao(+Pergunta:string, +RespostaDada:string, +UsernameAutor:string, +IdAutor:int)
+salvar_questao(Pergunta, RespostaDada, UsernameAutor, IdAutor) :- salvar_questao( questao(Pergunta, RespostaDada, UsernameAutor, IdAutor, 0) ).
 
 
 %! incrementar_voto(+Pergunta:string, -VotosAtualizado:int)
@@ -28,7 +28,7 @@ salvar_questao(Pergunta, Respostadada, UsernameAutor, IdAutor) :- salvar_questao
 incrementar_voto(Pergunta, VotosAtualizado) :-
   questao(Pergunta, R, A, I, VotosAntigos),
   plus(1, VotosAntigos, VotosAtualizado),
-  ( VotosAtualizado == 3 -> remover_questao(Pergunta);
+  ( VotosAtualizado = 3 -> remover_questao(Pergunta);
   replace_existing_fact( questao(Pergunta,R,A,I,VotosAntigos), questao(Pergunta,R,A,I,VotosAtualizado) ),
   atualizar_banco() ).
 

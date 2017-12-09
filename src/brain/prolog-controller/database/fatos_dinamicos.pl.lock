@@ -1,1 +1,4 @@
 :- dynamic questao/5.
+
+questao('a maioria parda está presente em qual região', 'sei lá', 'wilkinsondarolt', 666, 0).
+questao('qual estado tem mais habitantes', 'são paulo', 'micalevisk', 6170449962, 0).

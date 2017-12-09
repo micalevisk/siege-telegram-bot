@@ -63,7 +63,7 @@ municipios(NomeEstado, ListaMunicipios) :-
 
 %% capital(?NomeEstado, NomeCapital)
 %% O munícipio que é capital de NomeEstado é NomeCapital.
-capital(NomeEstado, NomeCapital) :- estado(NomeEstado, _, _, NomeCapital), !.
+capital(NomeEstado, NomeCapital) :- estado(NomeEstado, _, _, NomeCapital).
 capital('brasil', 'brasília').
 capital(NomeCapital) :- estado(_, _, _, NomeCapital).
 
