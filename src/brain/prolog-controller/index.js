@@ -1,6 +1,6 @@
-require('../../lib/typedefs')
+require('../../../lib/typedefs')
 const swipl = require('swipl-stdio')
-const { PATH_MAIN_PL, querys } = require('./config')
+const { PATH_MAIN_PL, CHAR_EVAL_PROLOG, queries } = require('./config')
 
 
 /**
@@ -15,9 +15,9 @@ class PrologController {
 
   /**
    *
-   * @param {string} pathInitialProgram
+   * @param {string} [pathInitialProgram]
    */
-  constructor(pathInitialProgram) {
+  constructor(pathInitialProgram = PATH_MAIN_PL) {
     if (!pathInitialProgram || typeof pathInitialProgram !== 'string') throw Error('Arg must be an string')
 
     checkConsult(pathInitialProgram)
@@ -25,21 +25,26 @@ class PrologController {
   }
 
   /**
-   *
+   * Verifica se é uma consulta para o Prolog e,
+   * se for, a executa.
+   * Caso contrário, apenas resolve a promise (passando a própria query).
    * @param {string} query
    * @param {AsyncCallback} cb
    * @return {promise}
    */
-  executeQuery(query, cb) {
+  executeQuery(query, cb) { // TODO implementar método separado que checa se é pra "avaliar/evalute" a consulta
+    if (!query || query[0] !== CHAR_EVAL_PROLOG) return Promise.resolve(query)
     if (typeof cb !== 'function') throw TypeError('"cb" must be an callback')
-    return executeQuery(this.pathInitialProgram, query, cb)
-          .catch((err) => { throw Error('[executequery]', err) })
+    console.log('[prolog-controller::parsequery]\n', parseQuery(query))
+    return executeQuery(this.pathInitialProgram, parseQuery(query), cb)
+          .catch(err => Error('[prolog-controller::error]', err))
   }
 
   /**
    *
    * @param {QueryHandler} queryHandler
    * @param {object} [queryInputs={}]
+   * @return {promise}
    */
   executeQueryWithHandler(queryHandler, queryInputs = {}) {
     return this.executeQuery(queryHandler.consulta(queryInputs), queryHandler.controlador)
@@ -83,4 +88,16 @@ async function executeQuery(initialProgram, strQuery, callback) {
 }
 
 
-module.exports = { prologController: new PrologController(PATH_MAIN_PL), querys };
+/**
+ * Realiza o tratamento da consulta (texto)
+ * para ficar de acordo com a sintaxe do Prolog.
+ * Obedece as conveções documentadas.
+ * @param {string} strQuery
+ * @return {string}
+ */
+function parseQuery(strQuery) {
+  return strQuery.substring(1).replace(/'/g, "\\'").replace(/"/g, "'")
+}
+
+
+module.exports = { PrologController, queries };

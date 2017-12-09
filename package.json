@@ -29,9 +29,9 @@
   "homepage": "https://github.com/micalevisk/siege-telegram-bot#readme",
   "dependencies": {
     "dotenv": "^4.0.0",
-    "natural": "^0.5.4",
+    "rivescript": "^1.17.2",
     "swipl-stdio": "^1.0.3",
-    "telegraf": "^3.10.1"
+    "telegraf": "^3.17.1"
   },
   "devDependencies": {
     "eslint": "^4.6.1",

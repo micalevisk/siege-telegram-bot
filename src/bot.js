@@ -1,77 +1,187 @@
-// emojis (c) https://emojipedia.org/
-const { Extra, reply } = require('telegraf')
+/**
+ * Main code.
+ * Inicializa e inicia o bot.
+ *
+ * emojis (c) https://emojipedia.org
+ */
 
-const brain    = require('./brain')
+const { Extra, Markup, session } = require('telegraf')
+
+const Brain    = require('./brain')
 const strUtils = require('../lib/utils/string_utils')
+const { strQueriesAprendizado } = require('./brain/aprendizado-utils')
 
 const DEFAULT_REPLY_OPTIONS = Extra.HTML().notifications(false).webPreview(false)
 
-// ========================================================== MENSAGENS PRÉ-DEFINIDAS ========================================================== //
-const HELP_MESSAGE = `${strUtils.asBold('📋regras')}
-${strUtils.asCode('1.')} os substantivos próprios devem estar escritos como manda a gramática;
-${strUtils.asCode('2.')} as demais palavras podem ser escritas de qualquer forma;
-${strUtils.asCode('3.')} as perguntas que o bot responde estão em ${strUtils.asLink('siege-telegram-bot', 'https://github.com/micalevisk/siege-telegram-bot#readme')};
-`
+// ========================================== MENSAGENS PRÉ-DEFINIDAS ========================================== //
+const HELP_MESSAGE = `${strUtils.asBold('📋Observações:')}
+${strUtils.asCode('1.')} conheço os sinônimos de várias palavras;
+${strUtils.asCode('2.')} entendo palavras mesmo sem a acentuação devida;
+${strUtils.asCode('3.')} a priori, todas as mensagens serão tratadas como perguntas, então não precisam terminar com interrogação;
+${strUtils.asCode('4.')} não há distinção entre caracteres maiúsculos e minúsculos;
+${strUtils.asCode('5.')} as perguntas que eu já sei responder estão listadas ${strUtils.asLink('aqui', 'https://github.com/micalevisk/siege-telegram-bot#readme')}.`
+
 const COMMANDS_AVAILABLE = `${strUtils.asBold('Olá, eu posso te ajudar a conhecer o Brasil 🇧🇷!')} 😉
-Me faça algumas perguntas sobre o Brasil geográfico que talvez eu saiba respondê-las 😊
+Me faça algumas perguntas sobre a geografia brasileira que talvez eu saiba respondê-las 😊
 
-📡comando disponível:
-${strUtils.asLink('/help')} - ${strUtils.asCode('mostra as instruções para o uso correto')}
-`
-// --------------------------------------------------------------------------------------------------------------------------------------------- //
-
-
-/**
- *
- * @param {*} ctx
- * @param {*} next
- * @return {*} envio da resposta
- */
-function bandeiraMiddleware(ctx, next) {
-  const msg = ctx.message.text
-  const match = ctx.match
-  if (!match) return next()
-
-  const inicioNome = msg.indexOf(match[1])
-  const nome = brain.primeiroNome(msg, inicioNome)
-
-  const { filepath, caption } = brain.getImagemBandeira(nome)
-  return (filepath)
-         ? ctx.replyWithPhoto(filepath, { caption })
-         : ctx.reply('Nome inválido 🤷')
-}
-
-
-/**
- *
- * @param {*} ctx
- * @return {promise} envio da resposta
- */
-function callBrainMiddleware(ctx, next) {
-  const msg = ctx.message.text
-
-  return brain.responderMensagem(msg)
-    .then(resposta => ctx.reply(resposta, DEFAULT_REPLY_OPTIONS) )
-    .catch((msgErro) => {
-      ctx.reply(msgErro, DEFAULT_REPLY_OPTIONS)
-      return next()
-    })
-}
+📡 Comando disponível:
+${strUtils.asLink('/help')} - ${strUtils.asCode('listar observações e instruções.')}`
+// ------------------------------------------------------------------------------------------------------------- //
 
 
 /**
  * Inicializa o bot.
  * @param {Telegraf} bot
+ * @param {RiveScript} rsBrain
  */
-function initializeBot(bot) {
+function initializeBot(bot, rsBrain) {
 
-  bot.command('start', reply(COMMANDS_AVAILABLE, DEFAULT_REPLY_OPTIONS))
+  const brain = new Brain(rsBrain)
+  bot.use( session() )
 
-  bot.command('help', reply(HELP_MESSAGE, DEFAULT_REPLY_OPTIONS))
+  /**
+   *
+   * @param {*} ctx
+   * @param {*} next
+   * @return {*} envio da resposta
+   */
+  function bandeiraMiddleware(ctx, next) {
+    const msg = ctx.message.text
+    const match = ctx.match
+    if (!match) return next()
 
-  bot.hears(/^(?:qual) .+ bandeira d[oea] (.+)/i, bandeiraMiddleware)
+    const inicioNome = msg.indexOf(match[1])
+    const nome = brain.primeiroNome(msg, inicioNome)
+
+    const { filepath, caption } = brain.getImagemBandeira(nome)
+    return (filepath)
+          ? ctx.replyWithPhoto(filepath, { caption })
+          : ctx.reply('Nome inválido 🤷')
+  }
+
+  /**
+   *
+   * @param {*} ctx
+   * @param {object} inlineKeyboard
+   * @return
+   */
+  function handlerRespostaComInlineKeyboard(ctx, inlineKeyboard) {
+    return ctx.reply(ctx.session.ultima_resposta_dada, Extra.markup(inlineKeyboard).HTML().inReplyTo(ctx.message.message_id))
+  }
+
+  /**
+   *
+   * @param {*} ctx
+   * @param {object} next
+   */
+  function handlerLerResposta(ctx, next) {
+    ctx.session.esperando_msg = false
+
+    const { session: { ultima_pergunta_identificada }, from: { username, id }, message: { text, message_id } } = ctx
+
+    const controladorConsulta = async (query) => {
+      const res = await query.next()
+      console.log('~>>>', res) // FIXME: inserção da questão não está sendo escrito
+      return res
+    }
+
+    return brain.plg.executeQuery(strQueriesAprendizado.salvarQuestao(ultima_pergunta_identificada, text, username, id), controladorConsulta)
+      .then((r) => {
+        if (r) return ctx.reply('Obrigado por me ensinar!!', DEFAULT_REPLY_OPTIONS.inReplyTo(message_id))
+        return next()
+      })
+  }
+
+
+  /**
+   *
+   * TODO:
+   * - adicionar verificaração se o retorno é pra resposta direta
+   * - adicionar módulo de aprendizado
+   * @param {*} ctx
+   * @return {promise} envio da resposta
+   */
+  function callBrainMiddleware(ctx, next) {
+    if (ctx.session.esperando_msg === true) return handlerLerResposta(ctx, next)
+
+    const { reply, from: { is_bot, id, username }, message: { text, message_id } } = ctx
+    if (is_bot) return next()
+    rsBrain.setUservar(username, 'id', id)
+
+    return brain.responderMensagem({ id, username, text })
+      .then((r) => {
+        if (r.text) {
+          ctx.session.ultima_resposta_dada = r.text
+          return reply(r.text, DEFAULT_REPLY_OPTIONS)
+        }
+
+        if (r.respostaDada) {
+          ctx.session.ultima_resposta_dada = r.respostaDada
+          ctx.session.ultima_pergunta_identificada = r.pergunta
+          return handlerRespostaComInlineKeyboard(ctx, Markup.inlineKeyboard([
+            Markup.callbackButton('⚠️', 'incrementar_votos'),
+            Markup.callbackButton('✅', 'remover_opcoes'),
+          ]))
+        }
+
+        // msg sem intent ou sem conhecimento externo
+        ctx.session.ultima_pergunta_identificada = r.pergunta
+        ctx.session.ultima_resposta_dada = r.respostaAusente
+        return handlerRespostaComInlineKeyboard(ctx, Markup.inlineKeyboard([
+          Markup.urlButton('🔍', 'http://google.com/search?q=' + ctx.session.ultima_pergunta_identificada.replace(/\s/g, '+')),
+          Markup.callbackButton('📝', 'ensinar'),
+          Markup.callbackButton('😕', 'remover_opcoes'),
+        ]))
+      })
+      .catch((msgErro) => {
+        if (typeof msgErro === 'string') return reply(msgErro, DEFAULT_REPLY_OPTIONS.inReplyTo(message_id))
+        return next()
+      })
+  }
+
+
+  bot.start((ctx) => {
+    ctx.session.esperando_msg = false
+    ctx.reply(COMMANDS_AVAILABLE, DEFAULT_REPLY_OPTIONS)
+  })
+
+  bot.command('help', ({ reply }) => reply(HELP_MESSAGE, DEFAULT_REPLY_OPTIONS))
+
+  bot.hears(/^(?:qual) .+ bandeira d[oea] (.+)\?*/i, bandeiraMiddleware)
 
   bot.hears(/^[^/\s]+.+$/i, callBrainMiddleware)
+
+
+  bot.action('delete_msg', ({ deleteMessage }) => deleteMessage())
+
+  bot.action('incrementar_votos', (ctx, next) => {
+    const controladorConsulta = async (query) => {
+      const res = await query.next()
+      console.log('->>>', res) // FIXME: alteração de VOTOS não está sendo escrita
+      return res
+    }
+
+    return brain.plg.executeQuery(strQueriesAprendizado.incrementarVoto(ctx.session.ultima_pergunta_identificada), controladorConsulta)
+      .then((r) => {
+        if (r) {
+          ctx.answerCbQuery('voto negativo computado!')
+          return ctx.editMessageText(ctx.session.ultima_resposta_dada, Extra.HTML())
+        }
+        return next()
+      })
+  })
+
+  bot.action('ensinar', (ctx) => {
+    ctx.session.esperando_msg = true
+    ctx.answerCbQuery('😀 Opa! Estou esperando a sua resposta, tudo bem?', true)
+    return ctx.editMessageText(ctx.session.ultima_resposta_dada, Extra.HTML())
+  })
+
+  bot.action('remover_opcoes', (ctx, next) => {
+    // return next()
+    return ctx.editMessageText(ctx.session.ultima_resposta_dada, Extra.HTML())
+  })
+
 
   bot.startPolling()
 

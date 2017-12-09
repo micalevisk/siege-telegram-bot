@@ -14,9 +14,9 @@ const path = require('path')
 
 const strUtils = require('../../lib/utils/string_utils')
 const parser   = require('./grammar/parser')
-const { prologController, querys } = require('../prolog-controller')
+const { PrologController } = require('./prolog-controller')
 
-const PATH_IMAGES = path.join(__dirname, '../prolog-controller/database/images')
+const PATH_IMAGES = path.join(__dirname, './prolog-controller/database/images')
 
 
 /**
@@ -43,17 +43,13 @@ function getImageSource(img) {
  */
 class Brain {
 
-  constructor() {
-    this.plg = prologController
-  }
-
   /**
    *
-   * @param {string} nomeEstado
-   * @return {string}
+   * @param {RiveScript} riveScriptBrain
    */
-  normalizarNomeEstado(nomeEstado) {
-    return parser.normalizarNomeEstado(nomeEstado || '')
+  constructor(riveScriptBrain) {
+    this.plg = new PrologController()
+    this.rsb = riveScriptBrain
   }
 
   /**
@@ -68,14 +64,6 @@ class Brain {
 
   /**
    *
-   * @param {string} img Nome da imagem localizada no diretório padrão
-   * @return {{source:string}|null}
-   */
-  getImagem(img) {
-    return getImageSource(img)
-  }
-  /**
-   *
    * @param {string} nomeEstado
    * @return {{filepath:string, caption:string}|{}}
    */
@@ -83,41 +71,44 @@ class Brain {
     if (!nomeEstado) return {}
     const nomeNormalizado = nomeEstado.toLowerCase()
     return {
-      filepath: this.getImagem(`bandeira_${strUtils.changeSpaces(nomeNormalizado)}.png`),
-      caption: `esta é a bandeira ${this.normalizarNomeEstado(nomeNormalizado)}`
+      filepath: getImageSource(`bandeira_${strUtils.changeSpaces(nomeNormalizado)}.png`),
+      caption: `Esta é a bandeira ${parser.normalizarNomeEstado(nomeNormalizado)}`,
     }
   }
 
   /**
-   * Interface com o Swi Prolog
-   * @param {string} msg
+   * Interfaceia com o RiveScript e Swi-Prolog.
+   * Executa a resposta, se esta for dada como consulta em Prolog.
+   * @param {{id:number, username:string, text:string}} msgInfo
    * @return {promise}
    */
-  /* eslint-disable */
-  responderMensagem(msg) { // FIXME pensar alternativa menos massante (retirar o loop)
-    const msgNormalizada = parser.normalizeText(msg, true)
+  responderMensagem({ id, username, text: msg }) {
 
-    for (let q in querys) { // NÃO USAR! https://hacks.mozilla.org/2015/04/es6-in-depth-iterators-and-the-for-of-loop/
-      const match = querys[q].regex.test(msgNormalizada)
-      if (!match) continue
-      const currQuery = querys[q].execRegexTo(msgNormalizada)
-
-      return new Promise((resolve, reject) => {
-        if (!currQuery) return reject(`O que você quis dizer com ${strUtils.asCode(msg)}? 🤖`)
-
-        return this.plg.executeQueryWithHandler(currQuery, currQuery.params)
-        .then((r) => {
-          const respostaMsg = currQuery.resposta(r, currQuery.params)
-          return resolve(respostaMsg)
-        })
-      })
+    const controladorConsulta = async (query) => {
+      const res = await query.next() // dá {} se a resposta for True
+      if (res.Resposta) return { text: parser.tratarTexto(res.Resposta) }
+      if (res.RespostaDada && typeof res.RespostaDada === 'string') {
+        return (id === res.IdAutor)
+        ? { text: parser.tratarTexto(res.RespostaDada) }
+        : { respostaDada: parser.tratarTexto(res.RespostaDada), pergunta: res.Pergunta }
+      }
+      if (res.RespostaAusente && typeof res.RespostaAusente === 'string') return { respostaAusente: parser.tratarTexto(res.RespostaAusente), pergunta: res.Pergunta }
+      return res
     }
 
-    return Promise.reject(`Não entendi`)
+    return new Promise((resolve) => {
+      const respostaIntent = this.rsb.reply(username, msg)
+      return this.plg.executeQuery(respostaIntent, controladorConsulta).then((r) => {
+        return (typeof r === 'string')
+             ? resolve({ text: parser.tratarTexto(r) })
+             : resolve(r)
+      })
+    })
+
   }
 
 }
 
-//========================//
-module.exports = new Brain()
-//========================//
+//===================//
+module.exports = Brain
+//===================//

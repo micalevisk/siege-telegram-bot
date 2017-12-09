@@ -9,6 +9,7 @@ const estados = {
   'alagoas': 'de',
   'amapá': 'do',
   'amazonas': 'do',
+  'brasil': 'do',
   'bahia': 'da',
   'ceará': 'do',
   'distrito federal': 'do',

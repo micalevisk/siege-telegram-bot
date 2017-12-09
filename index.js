@@ -26,6 +26,12 @@ require('dotenv').load({
 })
 
 const Telegraf = require('telegraf')
-const app = new Telegraf(process.env.BOT_TOKEN)
+const initializeBot = require('./src/bot')
 
-require('./src/bot')(app)
+const app = new Telegraf(process.env.BOT_TOKEN)
+// FIXME: definir um bot do RS pra cada usuário conectado no Telegram (inserir no src/brain/)
+const startRivescript = require('./src/rivescript-controller')
+
+startRivescript((rsBrain) => {
+  initializeBot(app, rsBrain)
+})
