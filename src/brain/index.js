@@ -50,17 +50,6 @@ class Brain {
   constructor(riveScriptBrain) {
     this.plg = new PrologController()
     this.rsb = riveScriptBrain
-
-    this.responderMensagem('x é ').then(r => console.log('[RESPOSTA]', r))//DEMO
-  }
-
-  /**
-   *
-   * @param {string} nomeEstado
-   * @return {string}
-   */
-  normalizarNomeEstado(nomeEstado) {
-    return parser.normalizarNomeEstado(nomeEstado || '')
   }
 
   /**
@@ -83,45 +72,39 @@ class Brain {
     const nomeNormalizado = nomeEstado.toLowerCase()
     return {
       filepath: getImageSource(`bandeira_${strUtils.changeSpaces(nomeNormalizado)}.png`),
-      caption: `esta é a bandeira ${this.normalizarNomeEstado(nomeNormalizado)}`,
+      caption: `Esta é a bandeira ${parser.normalizarNomeEstado(nomeNormalizado)}`,
     }
   }
 
   /**
    * Interfaceia com o RiveScript e Swi-Prolog.
    * Executa a resposta, se esta for dada como consulta em Prolog.
-   * @param {string} msg
+   * @param {{id:number, username:string, text:string}} msgInfo
    * @return {promise}
    */
-  responderMensagem(msg) {
-    // const msgNormalizada = parser.normalizarTexto(msg) // feito no bot RS
+  responderMensagem({ id, username, text: msg }) {
 
-    /**
-     * Segue a estratégia definida em "rivescript-controller/intents/queries.rive"
-     * @return {string|boolean}
-     */
-    // TODO: inserir módulo de aprendizagem (mensagens com interação)
     const controladorConsulta = async (query) => {
-      const resultado = await query.next() // dá {} se a resposta for True
-      if (resultado.Resposta) {
-        return resultado.Resposta
-      } else if (resultado.Respostadada) {
-        return `De acordo com o ${strUtils.asLink(resultado.Nickautor)},\n\n${resultado.Respostadada}`
+      const res = await query.next() // dá {} se a resposta for True
+      if (res.Resposta) return { text: parser.tratarTexto(res.Resposta) }
+      if (res.RespostaDada && typeof res.RespostaDada === 'string') {
+        return (id === res.IdAutor)
+        ? { text: parser.tratarTexto(res.RespostaDada) }
+        : { respostaDada: parser.tratarTexto(res.RespostaDada), pergunta: res.Pergunta }
       }
-      return 'Não sei te responder...'
+      if (res.RespostaAusente && typeof res.RespostaAusente === 'string') return { respostaAusente: parser.tratarTexto(res.RespostaAusente), pergunta: res.Pergunta }
+      return res
     }
 
-    return new Promise((resolve, reject) => {
-      const respostaIntent = this.rsb.reply('local-user', msg)
-
-      // TODO: tratar error na consulta (.catch)
-      return this.plg.executeQuery(respostaIntent, controladorConsulta)
-        .then((r) => {
-          // TODO: realizar parser na resposta visando tanto consultas com retorno 'true' (objeto vazio) quanto 'false'
-          if (typeof r === 'string') return resolve( parser.tratarMarcacoes(r) )
-          return reject(r)
-        })
+    return new Promise((resolve) => {
+      const respostaIntent = this.rsb.reply(username, msg)
+      return this.plg.executeQuery(respostaIntent, controladorConsulta).then((r) => {
+        return (typeof r === 'string')
+             ? resolve({ text: parser.tratarTexto(r) })
+             : resolve(r)
+      })
     })
+
   }
 
 }

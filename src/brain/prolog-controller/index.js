@@ -1,6 +1,6 @@
 require('../../../lib/typedefs')
 const swipl = require('swipl-stdio')
-const { PATH_MAIN_PL, queries } = require('./config')
+const { PATH_MAIN_PL, CHAR_EVAL_PROLOG, queries } = require('./config')
 
 
 /**
@@ -25,15 +25,19 @@ class PrologController {
   }
 
   /**
-   *
+   * Verifica se é uma consulta para o Prolog e,
+   * se for, a executa.
+   * Caso contrário, apenas resolve a promise (passando a própria query).
    * @param {string} query
    * @param {AsyncCallback} cb
    * @return {promise}
    */
-  executeQuery(query, cb) {
+  executeQuery(query, cb) { // TODO implementar método separado que checa se é pra "avaliar/evalute" a consulta
+    if (!query || query[0] !== CHAR_EVAL_PROLOG) return Promise.resolve(query)
     if (typeof cb !== 'function') throw TypeError('"cb" must be an callback')
-    return executeQuery(this.pathInitialProgram, query, cb)
-          .catch((err) => { throw Error('[prolog-controller::error]', err) })
+    console.log('[prolog-controller::parsequery]\n', parseQuery(query))
+    return executeQuery(this.pathInitialProgram, parseQuery(query), cb)
+          .catch(err => Error('[prolog-controller::error]', err))
   }
 
   /**
@@ -81,6 +85,18 @@ async function executeQuery(initialProgram, strQuery, callback) {
 
   engine.close()
   return response
+}
+
+
+/**
+ * Realiza o tratamento da consulta (texto)
+ * para ficar de acordo com a sintaxe do Prolog.
+ * Obedece as conveções documentadas.
+ * @param {string} strQuery
+ * @return {string}
+ */
+function parseQuery(strQuery) {
+  return strQuery.substring(1).replace(/'/g, "\\'").replace(/"/g, "'")
 }
 
 

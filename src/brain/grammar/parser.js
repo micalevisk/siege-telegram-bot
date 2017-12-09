@@ -1,8 +1,10 @@
-const marcadores = require('./marcadores')
+require('../../../lib/typedefs')
+
+const MARCADORES = require('./marcadores')
 const { splitIntoWords } = require('../../../lib/utils/string_utils')
 const { nomeEstadoComoPreposicao } = require('./preposicoes')
-const { padronizarSinonimos } = require('./sinonimos')
-
+// const { padronizarSinonimos } = require('./sinonimos')
+const strUtils = require('../../../lib/utils/string_utils')
 
 /**
  * Transforma para upper case todos as primeiras letras
@@ -18,7 +20,7 @@ function allFirstToUpper(str) {
   const fixed = str.replace(/\\'/g, "'")
 
   const firstChar = fixed.charAt(0)
-  if (!firstChar.match(/[ÀÈÌÒÙÁÉÍÓÚÃÕÇÀ-ÿA-Za-z]/)) return fixed
+  if (!firstChar.match(/[ÀÈÌÒÙÁÉÍÓÚÃÕÇÀ-ÿA-Z]/i)) return fixed
 
   const newstr = fixed.replace(re, (match, firstCharWord, restWord) => {
     if (restWord.length < 2) return firstCharWord + restWord
@@ -80,7 +82,8 @@ function getSubstantivosProprios(str) {
  * @return {{palavra:string, index:number, length:number}|null}
  */
 function getPrimeiroSubstantivoProprio(str, fromIndex = 0) {
-  const re = /[ÀÈÌÒÙÁÉÍÓÚÃÕÇA-Z][àèìòùáéíóúãõça-z]+((\s+|-)(d(as?|es?|os?)\s+|d')?[ÀÈÌÒÙÁÉÍÓÚÃÕÇA-Z]([.]|[àèìòùáéíóúãõça-z]*))*/
+  // const re = /[ÀÈÌÒÙÁÉÍÓÚÃÕÇA-Z][àèìòùáéíóúãõça-z]+((\s+|-)(d(as?|es?|os?)\s+|d')?[ÀÈÌÒÙÁÉÍÓÚÃÕÇA-Z]([.]|[àèìòùáéíóúãõça-z]*))*/
+  const re = /[àèìòùáéíóúãõça-z]+((\s+|-)(d(as?|es?|os?)\s+|d')?[àèìòùáéíóúãõça-z]([.]|[àèìòùáéíóúãõça-z]*))*/i
   const tokens = (typeof str === 'string') ? splitIntoWords(str).map(allToLowerExceptFirst) : str
   const normalizado = tokens.join(' ').substr(fromIndex)
   const matched = normalizado.match(re)
@@ -112,9 +115,11 @@ exports.getPrimeiroSubstantivoProprioNormalizado = (str, fromIndex = 0) => {
  * @param {string} nomeEstado
  * @return {string}
  */
-exports.normalizarNomeEstado = (nomeEstado) => {
+function normalizarNomeEstado(nomeEstado) {
   return allFirstToUpper( nomeEstadoComoPreposicao(nomeEstado) )
 }
+
+exports.normalizarNomeEstado = nomeEstado => normalizarNomeEstado(nomeEstado)
 
 /**
  * Capitaliza todos os primeiros caracteres
@@ -144,32 +149,69 @@ exports.getPrimeiroNumero = (str, fromIndex = 0) => {
 }
 
 /**
- * Remover caracteres tendenciosos,
- * sem prejudicar o processamento
- * do RiveScript.
+ * Realiza processamentos que o RiveScript não consegue fazer.
+ * Mas sem prejudicar a lógica das consultas em Prolog,
+ * e as respostas obtidas.
+ *
+ * Escapa caracteres tendenciosos.
  * @param {string} str Texto a ser tratado
- * @return {string} O texto tratado
+ * @return {string} O texto normalizado
  */
-exports.normalizarTexto = (str) => {
-  return str.trim().replace(/[\\/'"]/g, '')
+exports.corrigirTexto = (str) => {
+  return str.replace(/['"]/g, '\\$&')
 }
 
 /**
- * Identifica o texto contido
- * entre os caracteres marcadores
- * de nome próprio, e retorna seu conteúdo e meta-dados.
- * FIXME: não aceita múltiplas tags ou tags aninhadas
- * @param {string} str
- * @return {{start:number, end:number, text:string}}
+ * Realiza o processo inversa da "correção" do texto.
+ * Além de tratar as marcações (removendo-as e substituindo devidamente).
+ * @param {string} str O texto a ser tratado
+ * @return {string} O texto tratado
  */
-/* eslint-disable comma-dangle */
-function extrairNomeProprio(str) {
-  const start = str.indexOf(marcadores.nomeproprio.inicio)
-  const end   = str.lastIndexOf(marcadores.nomeproprio.fim)
-
-  return { start, end, text: str.substring(start + 1, end) }
+exports.tratarTexto = (str) => {
+  return tratarTodasMarcacoes( str.replace(/\\(')/g, '$1') )
 }
 
+/**
+ * Escapar os meta-caracteres das expressões regulares.
+ * @param {strin} str
+ * @return {string} A string com os caracteres escapados
+ */
+function escaparMetacaracteres(str) {
+  return str.replace(/[{}()|^$*?+[\]/\\]/g, '\\$&')
+}
+
+/**
+ * Dado um texto, as tags (marcadores) que definem
+ * os símbolos inicial e final, e uma função que
+ * realiza a conversão/tratamento do texto que está
+ * entre os símbolos marcadores,
+ * essa função realizará tal processo de conversão.
+ * OBS: não admite símbolos de diferentes tags possuem um caractere em comum.
+ *
+ * tratarMarcacoes :: (String, { sb_start: String, sb_end: String }, String -> String) -> String
+ * @param {string} str
+ * @param {Marking} marcador
+ * @param {function} tratador
+ * @return {string} A str sem o marcador e com o texto (entre os marcadores) tratado
+ */
+function tratarMarcacoes(str, marcador, tratador) {
+  const inicio = str.indexOf(marcador.sb_start) // primeiro ocorrência da tag inicial
+  const fim    = str.lastIndexOf(marcador.sb_end) // última ocorrência da tag final
+
+  return (inicio >= 0 && fim >= 0)
+       ? str.slice(0, inicio) + tratador( str.substring(inicio + marcador.sb_start.length, fim) ) + str.slice(fim + marcador.sb_end.length)
+       : str
+}
+
+
+/**
+ * @param {array} fns - Funções que serão aplicadas.
+ * @return {function}
+ */
+function pipe(...fns) {
+  const PIPE = (f, g) => (...args) => g( f(...args) );
+  return fns.reduce(PIPE);
+}
 
 /**
  * Analisa o texto para substituir/tratar
@@ -178,15 +220,15 @@ function extrairNomeProprio(str) {
  * @param {string} strComTags
  * @return {string} O texto tratado (sem marcações)
  */
-exports.tratarMarcadores = (strComTags) => {
-  let strSemTags = strComTags
-
-  // tratar nomes próprios
-  const { start, end, text } = extrairNomeProprio(strSemTags)
-  strSemTags = strSemTags.substring(0, start) + allFirstToUpper(text) + strSemTags.substring(end + 1, strSemTags.length)
-
-  // TODO verificar outras marcações e incrementar abaixo
-  //...
+function tratarTodasMarcacoes(strComTags) { // TODO: refatorar
+  // if (typeof strComTags !== 'string') return strComTags
+  let strSemTags = tratarMarcacoes(strComTags, MARCADORES.nomeproprio, allFirstToUpper)
+  strSemTags = tratarMarcacoes(strSemTags, MARCADORES.estado_com_preposicao, normalizarNomeEstado)
+  strSemTags = tratarMarcacoes(strSemTags, MARCADORES.codigo, strUtils.asCode)
+  strSemTags = tratarMarcacoes(strSemTags, MARCADORES.link, strUtils.asLink)
+  strSemTags = tratarMarcacoes(strSemTags, MARCADORES.italico, strUtils.asItalic)
+  strSemTags = tratarMarcacoes(strSemTags, MARCADORES.negrito, strUtils.asBold)
 
   return strSemTags
 }
+

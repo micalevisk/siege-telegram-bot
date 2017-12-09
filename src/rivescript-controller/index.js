@@ -5,9 +5,9 @@ const rsBrain = new RiveScript({
   utf8: true,
   errors: {
     replyNotFound: '',
-    replyNotMatched: '', // alterar aqui para adicionar o módulo de aprendizado (padrão não encontrado)
-    objectNotFound: 'Ocorreu um problema em algun dos meus parafusos! 👀',
-    deepRecursion: 'Opa! detectei um loop nessa mensagem 💪',
+    replyNotMatched: '',
+    objectNotFound: '',
+    deepRecursion: '',
   },
 })
 
