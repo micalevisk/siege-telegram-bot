@@ -25,7 +25,8 @@ const COMMANDS_AVAILABLE = `${strUtils.asBold('Olá, eu posso te ajudar a conhec
 Me faça algumas perguntas sobre a geografia brasileira que talvez eu saiba respondê-las 😊
 
 📡 Comando disponível:
-${strUtils.asLink('/help')} - ${strUtils.asCode('listar observações e instruções.')}`
+${strUtils.asLink('/help')} - ${strUtils.asCode('listar observações e instruções.')}
+${strUtils.asLink('/cancelar')} - ${strUtils.asCode('parar espera do bot.')}`
 // ------------------------------------------------------------------------------------------------------------- //
 
 
@@ -147,12 +148,18 @@ function initializeBot(bot, rsBrain) {
 
   bot.command('help', ({ reply }) => reply(HELP_MESSAGE, DEFAULT_REPLY_OPTIONS))
 
+  bot.command('cancelar', (ctx, next) => {
+    if (ctx.session.esperando_msg === true) {
+      ctx.session.esperando_msg = false
+      return ctx.reply('Tudo bem 🙁 não estou esperando sua resposta mais...')
+    }
+    return next()
+  })
+
   bot.hears(/^(?:qual) .+ bandeira d[oea] (.+)\?*/i, bandeiraMiddleware)
 
   bot.hears(/^[^/\s]+.+$/i, callBrainMiddleware)
 
-
-  bot.action('delete_msg', ({ deleteMessage }) => deleteMessage())
 
   bot.action('incrementar_votos', (ctx, next) => {
     const controladorConsulta = async (query) => {
@@ -164,8 +171,12 @@ function initializeBot(bot, rsBrain) {
     return brain.plg.executeQuery(strQueriesAprendizado.incrementarVoto(ctx.session.ultima_pergunta_identificada), controladorConsulta)
       .then((r) => {
         if (r) {
-          ctx.answerCbQuery('voto negativo computado!')
-          return ctx.editMessageText(ctx.session.ultima_resposta_dada, Extra.HTML())
+          return ctx.answerCbQuery('voto negativo computado!')
+            .then(() => ctx.editMessageText(ctx.session.ultima_resposta_dada, Extra.HTML()))
+            .catch((err) => {
+              console.log('[bot-incrementar_votos::error]', err)
+              return ctx.deleteMessage() // sessão perdida
+            })
         }
         return next()
       })
@@ -173,12 +184,16 @@ function initializeBot(bot, rsBrain) {
 
   bot.action('ensinar', (ctx) => {
     ctx.session.esperando_msg = true
-    ctx.answerCbQuery('😀 Opa! Estou esperando a sua resposta, tudo bem?', true)
-    return ctx.editMessageText(ctx.session.ultima_resposta_dada, Extra.HTML())
+    return ctx.answerCbQuery('😀 Opa! Estou esperando a sua resposta, tudo bem?', true)
+      .then(() => ctx.editMessageText(ctx.session.ultima_resposta_dada, Extra.HTML()))
+      .catch((err) => {
+        ctx.session.esperando_msg = false
+        console.log('[bot-ensinar::error]', err)
+        return ctx.editMessageText('Desculpe, perdi sua mensagem...\n<b>Não</b> estou esperando sua resposta')
+      })
   })
 
-  bot.action('remover_opcoes', (ctx, next) => {
-    // return next()
+  bot.action('remover_opcoes', (ctx) => {
     return ctx.editMessageText(ctx.session.ultima_resposta_dada, Extra.HTML())
   })
 
