@@ -2,24 +2,21 @@
   <a href="https://telegram.me/SIEGE_BR_bot">
     <img src="https://img.shields.io/badge/%F0%9F%92%AC%20Telegram-SIEGE__BR__bot-blue.svg?style=flat-square" />
   </a>
-  <a href="">
+  <a href="https://waffle.io/micalevisk/siege-telegram-bot">
     <img src="https://badge.waffle.io/micalevisk/siege-telegram-bot.png?columns=all&style=flat-square" />
   </a>
   <a href="https://heroku.com">
     <img src="http://heroku-badge.herokuapp.com/?app=siege-telegram-bot&style=flat" />
   </a>
-  <div>Sistema Inteligente de Ensino de Geografia para o Telegram</div>
+  <div><b>SIEGE</b> - Sistema Inteligente de Ensino de Geografia para o Telegram</div>
   <sub>
     by
     <a href="https://github.com/micalevisk">Micael Levi</a>
   </sub>
 </div>
 
-<!-- ## Atividades do Projeto 
-[![Burndown Graph](https://graphs.waffle.io/area/language-latex/throughput.svg)](https://waffle.io/area/language-latex/metrics)
--->
 
-## Sobre a base de conhecimento em [src/prolog-controller/database](src/prolog-controller/database)
+## Sobre a base de conhecimento em [src/brain/prolog-controller/database](src/brain/prolog-controller/database)
 
 Os fatos disponíveis nos programas dispostos neste diretório são:
 > - `regiao(?Nome, ?QuantidadeEstados)`
@@ -28,12 +25,12 @@ Os fatos disponíveis nos programas dispostos neste diretório são:
 > - `municipio(?Nome, ?NomeEstado)`
 
 Pensando nos fatos em termos de tabela, as relações de integridade referencial ficam da seguinte forma:
-<img alt="diagrama RIR" src="src/prolog-controller/database/images/diagrama-integridade-referencial.png" width="780">
+<img alt="diagrama RIR" src="src/brain/prolog-controller/database/images/diagrama-integridade-referencial.png" width="780">
 
 
 -------------
 
-## Instalação
+## Instalação e Execução
 <div align="center">
   <table align="center">
     <tr align="center">
@@ -69,26 +66,37 @@ Pensando nos fatos em termos de tabela, as relações de integridade referencial
   </table>
 </div>
 
-Crie um arquivo de nome **`.env`** do diretório raiz com o seguinte conteúdo:
-```
-BOT_TOKEN = <SEU TOKEN AQUI>
-```
-E execute **`npm start`** no terminal
+1. Altere o nome do arquivo [`.env.example`](.env.example) para **`.env`**
+3. Altere o conteúdo do arquivo renomeado para adicionar o token do seu bot
+2. E execute **`npm start`** no terminal
 
-## ~~DEMO~~
-Entre em contato com o bot [@SIEGE_BR_bot](http://t.me/SIEGE_BR_bot) no aplicativo Telegram
+## ~~Em Produção~~
+Entre em contato com o bot [@SIEGE_BR_bot](http://t.me/SIEGE_BR_bot) no aplicativo [Telegram](https://telegram.org)
 
 # Perguntas que serão respondidas
-> - as perguntas listadas a seguir contém apenas palavras-chave que o bot entenderá _(case insensitive)_
-> - algumas palavras podem ser substituídas por seus sinônimos que estão listados em [sinonimos.js](src/brain/grammar/sinonimos.js)
-> - termos entre colchetes indicam que estes são opcionais; a barra indica uma alternativa
-> - os substantivos prórprios deve iniciar em maiúsculo (como dita a gramática da língua)
+As perguntas listadas a seguir contém apenas sentenças que o bot entenderá _(InSeNsÍvEl aO cAsO)_
+> - as perguntas tenta ser o mais breve possível (sem gerar ambiguidade)
+> - algumas palavras podem ser substituídas por seus sinônimos mais comuns (além de versões sem acentuação)
+> - palavras entre colchetes indicam que estes são opcionais; a barra indica uma alternativa
+> - os substantivos próprios devem iniciar em maiúsculo (como manda a gramática)
+> - palavras em destaque são consideradas "variáveis"; representam apenas o conceito
+> - a interrogação no final da pergunta é indiferente para a compreensão do bot
+> - espaços excedentes são ignorados
 
+<!-- ORDEM MANTIDA PELO RIVESCRIPT COM PADRÕES MAIS ESPECÍCIOS PRIMEIRO -->
+1. qual [é] [a] capital/sede/metrópole do/de/da `Estado`
+2. `Município` é [a] capital/sede/metrópole de qual/algum estado?
+3. `Município` é [a] capital/sede/metrópole do/de/da `Estado`
+4. Existe/Há algum estado cuja [a] capital/sede/metrópole tem/possua o mesmo nome do estado?
+14. O [estado [do/de/da]] `Estado` tem/possui quantas/quantos cidades/municípios?
+17. `Estado`/`Município` (está/fica [localizado])/(se localiza) em qual região?
+
+<!--§
 ### *Capitais dos Estados Brasileiros*
-1. Qual [a] capital do/de/da `Estado`?
-2. Qual [a] capital do Brasil?
-3. [A] cidade/município [do/de] `Municipio` é capital do/de/da `Estado`?
-4. Existe/Há algum estado cuja [a] capital tem/possui o mesmo nome do estado?
+~1. Qual [a] capital do/de/da `Estado`?
+~2. Qual [a] capital do Brasil?
+~3. [A] cidade/município [do/de] `Municipio` é capital do/de/da `Estado`?
+~4. Existe/Há algum estado cuja [a] capital tem/possui o mesmo nome do estado?
 5. `Municipio` é a/o capital de qual estado?
 6. `Municipio` é a/o capital de algum estado?
 7. `Municipio` é a/o capital do/de/da `Estado`?
@@ -100,10 +108,10 @@ Entre em contato com o bot [@SIEGE_BR_bot](http://t.me/SIEGE_BR_bot) no aplicati
 11. Quais [são] [as] regiões [que] possuem até `Numero` estados?
 12. Quantos estados [o] Brasil tem/possui?
 13. Quantos estados a/o [região] `Regiao` delimita?
-14. Quantas/Quantos cidades/municípios o estado [do/de/da] `Estado` tem/possui?
+~14. Quantas/Quantos cidades/municípios o estado [do/de/da] `Estado` tem/possui?
 15. [A/O cidade/município do/de] `Municipio` está/fica em qual estado?
 16. [A/O estado/cidade/município do/de/da] `Estado`/`Municipio` está/fica na região `Regiao`?
-17. [A/O estado do/de/da] `Estado`/`Municipio` está/fica em qual região?
+~17. [A/O estado do/de/da] `Estado`/`Municipio` está/fica em qual região?
 
 ### *Tamanho Territorial (estados)*
 18. Qual [é] [o] tamanho territorial do/de/da `Estado`?
@@ -111,7 +119,7 @@ Entre em contato com o bot [@SIEGE_BR_bot](http://t.me/SIEGE_BR_bot) no aplicati
 20. Qual estado tem/possui [o] maior tamanho [territorial]?
 21. Qual [é] [o] tamanho territorial do Brasil?
 22. Quais [são] os estados de maior e menor tamanho [territorial]?
-
+-->
 
 <!--
 ### *Contingente Populacional* **(sem dados)**
@@ -134,16 +142,17 @@ Entre em contato com o bot [@SIEGE_BR_bot](http://t.me/SIEGE_BR_bot) no aplicati
 36. Descreva um caminho rodoviário entre o estado do/de `Estado1` e `Estado2`, sem sair das fronteiras do Brasil.
 -->
 
+<!--§
 ### *Extras*
 36. O que [o/a] `Estado`/`Municipio`/`Regiao` é para o Brasil?
 37. Qual [é] a bandeira do/de/da `Estado`/Brasil?
+-->
 
-
-<!-- TODO: alterar RegExs para RiveScript (.rive) patterns [https://www.rivescript.com/docs/tutorial] -->
 ## Expressões regulares utilizadas para identificar as perguntas
 > - o texto deve ser truncado (espaços excedentes removidos) e a comparação deve ser case insensitive
 > - os termos utilizados no casamento são os sinônimos principais
 
+<!--§
 | no. | regex |
 |:----|:------|
 | 1   | `^(?:qual) .*\bcapital\b.+d[oea] (.+)`
@@ -170,12 +179,23 @@ Entre em contato com o bot [@SIEGE_BR_bot](http://t.me/SIEGE_BR_bot) no aplicati
 | 22  | `^(?:quais) .+ (estados) .+ (maior) e (menor) (tamanho)\b.+`
 | 36  | `^(?:o que) (.+) é para .*\bbrasil\b.+`
 | 37  | `^(?:qual) .+ bandeira d[oea] (.+)`
-
+-->
 
 # Consultas para as perguntas <small>(implementadas)</small>
 > - O símbolo '+' indica que a variável (que segue) deve ser uma entrada, i.e., ter valor.
 > - As querys terminadas com ponto final já estão no formato exato, i.e., estão prontas para serem executadas.
 
+| no. | query |
+|:----|:------|
+| 1   | `capital(+Estado, NC)`
+| 2   | `capital(NE, +Município)`
+| 3   | `capital(+Estado, +Município)`
+| 4   | `findall(E, capital(E,E), +Quais), list_nonempty(+Quais, +Existe)`
+| 14  | `municipios(+Estado, Municipios), length(Municipios, QtdMunicipios)`
+| 17  | `regiao_de(+Nome, Regiao)`
+
+
+<!--§
 | no. | query | saída |
 |:----|:------|------:|
 | 1   | `capital(+Estado, NomeCapital)`                                             | __NomeCapital__                  |
@@ -201,45 +221,8 @@ Entre em contato com o bot [@SIEGE_BR_bot](http://t.me/SIEGE_BR_bot) no aplicati
 | 21  | `tamanho(brasil, TamanhoTotal).`                                            | __TamanhoTotal__                 |
 | 22  | `maior_area(MaiorArea, MaiorEstado), menor_area(MenorArea, MenorEstado).`   | __MaiorEstado__, __MenorEstado__ |
 | 36  | `relacao(+Nome, Relacao)`                                                   | __Relacao__                      |
-
-
-<!--
-# Descrição da Tarefa
-
-O objetivo é criar um sistema programado em `Prolog` que auxilie o ensino e aprendizagem de Geografia do Brasil. <br>
-Devendo abranger, pelo menos, 5 tópicos. <br>
-A interface pode ser feita empregando-se `XPCE/Prolog` ou outra linguagem.
-
-
-# Documentação
-www.swi-prolog.org/pldoc/
-
-## Predicados
-
-```
-argumento de entrada: +
-argumento de saída: -
-argumento de entrada/saída: ?
-```
-
-- **length**(_?List, ?Int_) <br>
-`True` if Int represents the number of elements in List. <br>
-This predicate is a true relation and can be used to find the length of a list or produce a list (holding variables) of length Int. <br>
-The predicate is non-deterministic, producing lists of increasing length if List is a partial list and Int is unbound. <br>
-This predicate fails if the tail of List is equivalent to Int. <br>
-It raises errors if:
-  - Int is bound to a non-integer.
-  - Int is a negative integer.
-  - List is neither a list nor a partial list. This error condition includes cyclic lists.
-
-
-# Como Usar
-
-## Instalação
-
-### Exemplo de Uso
-
 -->
+
 
 ## License
 MIT: http://micalevisk.mit-license.org/
