@@ -7,67 +7,125 @@
  * A consulta retornada para uma pergunta será o ponto
  * de partida para a execução do Prolog.
  *
- * Os templates que iniciem com "!" (sem aspas)
- * serão consideradas como consultas, e não respostas.
+ * Os templates que iniciam com "§" (sem as aspas)
+ * serão consideradas como consultas do Prolog, e não respostas diretas.
+ * A numeração segue o que está listado em
+ * https://github.com/micalevisk/siege-telegram-bot#perguntas-que-serão-respondidas
+ * Além disso, as repostas que o sistema vai exibir devem estar
+ * na variável "Resposta" ou "RespostaDada" do Prolog. Ou seja, as consultas retornadas
+ * devem conter, em algum momento, o uso dessa variável como saída.
+ * Assim, toda consulta válida deve "retornar" um Atom.
+ * Para as consultas, use aspas duplas ao invés das simples, o controller irá converter.
  *
+ *
+ * FIXME:
+ * - "normalizar" retornos visando retirar os "escapes" da resposta do Prolog
+ * - tratar consultas que retornam 'false'
  * TODO:
- * - verificar tratamento de erros nas consultas
+ * - remover escapes da resposta dada pelo Prolog
+ * - adicionar siglas em respostas que tenham estados
+ * - adicionar emoji/emoções para as respostas
  *
- * ------ terminologias ------
+ * ______ siglas ______
  * NC  = NomeCapital
  * NCF = NomeCapitalFormatado
+ * NE  = NomeEstado
+ * NM  = NomeMunicipio
+ * RT  = RespostaTemporária
  */
 
 
-/******************************* parser strings *******************************/
-// allFirstToUpper(str:string) -> string
-> object allFirstToUpper javascript
-  const str = args[0];
-  if ((!str) || (str.length < 3)) return str;
-  const re = /([ÀÈÌÒÙÁÉÍÓÚÃÕÇÀ-ÿA-Z])([^\s]+)/gi;
-  const fixed = str.replace(/\\'/g, "'");
-
-  const firstChar = fixed.charAt(0);
-  if (!firstChar.match(/[ÀÈÌÒÙÁÉÍÓÚÃÕÇÀ-ÿA-Za-z]/)) return fixed;
-
-  const newstr = fixed.replace(re, (match, firstCharWord, restWord) => {
-    if (restWord.length < 2) return firstCharWord + restWord;
-    return (restWord.charAt(0) === '\'')
-           ? firstCharWord.toLowerCase() + restWord.substr(0, 2).toUpperCase() + restWord.substr(2).toLowerCase()
-           : firstCharWord.toUpperCase() + restWord.toLowerCase();
-  });
-
-  return newstr.replace(/-./g, match => match.toUpperCase());
-< object
-/******************************************************************************/
++ _
+- Não sei o que `<star>` significa, (@desculpasubstantivo)
+- (@desculpasubstantivo), não sei o que você quis dizer com `<star>`
 
 
-
-/* e.g.:
-?- capital('rio grande do sul', NC),nome_proprio(NC, NCF),atomics_to_string(["A capital do Rio Grande do Sul é ", NCF], Resposta).
-Resposta = "A capital do Rio Grande do Sul é {porto alegre}".
-*/
-
-// ======= :1: =======
-+ qual [a] capital (d(e|a|o)) *
-
-- !capital('<star3>', NC),
-^ nome_proprio(NC, NCF),
-^ atomics_to_string(["A capital <star1> <call>allFirstToUpper <star3></call> é ", NCF], Resposta).{weight=2}
-
-- !capital('<star3>', NC),
-^ nome_proprio(NC, NCF),
-^ atomics_to_string([NCF, " é a capital <star1> <call>allFirstToUpper <star3></call>!"], Resposta).
-
-// ======= :2: =======
-+ * é (@capitalsubstantivo) de (@qualpronome) estado
-- !capital(NE, '<star1>').{weight=2}
+// ======= :0: ======= //
++ *
+- §
+^ texto("<star>", Pergunta),
+^ if_then_else(
+^   questao("<star>", RT, UsernameAutor, IdAutor, Votos),
+^   (
+^      if_then_else(
+^        <get id> == IdAutor,
+^        atomics_to_string(["A resposta que **você** me deu foi:\n", "`", RT, "`"], RespostaDada),
+^        atomics_to_string(["De acordo com @@", UsernameAutor, "@:\n", "`", RT, "`"], RespostaDada)
+^      )
+^   ),
+^   atomics_to_string(["__Não sei te responder...__\nmas você pode me ensinar, se quiser."], RespostaAusente)
+^ )
 
 
-// ======= :3: =======
-+ * é (@capitalsubstantivo) (d(e|a|o)) *
 
-- !capital('<star5>', '<star1>').{weight=2}
+// ======= :1: ======= //
++ qual [é] [a] capital (@dopreposicao) *
+- <set ncupper=<call>allFirstToUpper <star2></call>>
+^ §
+^ if_then_else(
+^   capital("<star2>",NC),
+^   atomics_to_string(["A capital <star1> <get ncupper> é {", NC, "}"], Resposta),
+^   atomics_to_string(["`<star2>` não é um Estado do Brasil..."], Resposta)
+^ )
 
-- !capital('<star5>', '<star1>').
 
+// ======= :2: ======= //
++ * é [a] (@capitalsubstantivo) de (@qualpronome) estado
+- <set ncupper=<call>allFirstToUpper <star1></call>>
+^ §
+^ if_then_else(
+^   capital(NE, "<star1>"),
+^   atomics_to_string(["Sim, <get ncupper> é a capital &", NE, "&"], Resposta),
+^   if_then_else(
+^     municipio("<star1>"),
+^     atomics_to_string(["(@naodiscordancia)"], Resposta),
+^     atomics_to_string(["`<star1>` não é um município brasileiro..."], Resposta)
+^   )
+^ )
+
+
+// ======= :3: ======= //
++ * é [a] (@capitalsubstantivo) (@dopreposicao) *
+- §
+^ if_then_else(
+^   capital("<star4>", "<star1>"),
+^   atomics_to_string(["(@simconcordancia)"], Resposta),
+^   atomics_to_string(["(@naodiscordancia)"], Resposta)
+^ ).
+
+
+// ======= :4: ======= //
++ (@existeconcordancia) algum estado cuja [a] (@capitalsubstantivo) (@temposse) o mesmo nome do estado
+- §
+^ if_then_else(
+^   (  findall(E, capital(E,E), Quais),
+^      list_nonempty(Quais, Existe), Existe  ),
+^   (  join_list(Quais, Estados),
+^      atomics_to_string(["(@simconcordancia), são eles: ", Estados], Resposta)  ),
+^   atomics_to_string(["(@naodiscordancia)"], Resposta)
+^ )
+
+
+// ======= :17: ======= //
++ * ((@ficapresente) [localizado]|se localiza) em qual (@regiaosubstantivo)
+- <set nome=<call>allFirstToUpper <star1></call>>
+^ §
+^ if_then_else(
+^   regiao_de("<star1>", Regiao),
+^   atomics_to_string(["{<get nome>} (@ficapresente) na região ", Regiao], Resposta),
+^   atomics_to_string(["`<star1>` não é um Estado ou município do Brasil"], Resposta)
+^ )
+
+
+// ======= :14: ======= //
+// - <star4> != undefined => <set prep=<star2>>
+// * <star4> != undefined => <set ne=<star3>>
+
++ o [estado] [(@dopreposicao)] * (@temposse) quant(a|o)s (@cidadesubstantivo)s
+- §
+^ if_then_else(
+^   municipios("<star2>", Municipios),
+^   ( length(Municipios, QtdMunicipios),
+^     atomics_to_string(["O estado &<star2>& <star3> `", QtdMunicipios, "` municípios"], Resposta) ),
+^   atomics_to_string(["`<star2>` não é um Estado do Brasil"], Resposta)
+^ )

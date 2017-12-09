@@ -14,5 +14,5 @@
 ! var job      = professor robô
 ! var website  = www.github.com/micalevisk/siege-telegram-bot
 
-// Substituições do bot (os padrões devem usar a palavra da direita)
-! sub o = a
+// Substituições do bot (os padrões devem usar a palavra da direita e o bot entenderá ambas)
+// ! sub i'm = i am

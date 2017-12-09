@@ -11,8 +11,9 @@
  * em PT-BR, sem separadores e com todas as letras em minúsculo.
  *
  * auxílio:
+ * https://www.sinonimos.com.br
  * https://www.colegioweb.com.br/classes-gramaticais
- * https://www.dicio.com.br/
+ * https://www.dicio.com.br
  */
 
 
@@ -21,3 +22,12 @@
 ! array caminhosubstantivo = caminho rota percurso trajetória trajetoria
 ! array cujopronome        = cujo|a qual
 ! array qualpronome        = qual algum
+! array dopreposicao       = do de da
+! array desculpasubstantivo= me desculpa|desculpe-me|me perdoe|perdoe-me
+! array creiopresente      = creio que|acho que|acredito que
+! array ficapresente       = fica está
+! array simconcordancia    = sim|isso mesmo!|exatamente!
+! array naodiscordancia    = não|na verdade, não|creio que não
+! array existeconcordancia = existe há ha
+! array temposse           = tem possua possui
+! array regiaosubstantivo  = região regiao distrito
