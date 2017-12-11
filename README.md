@@ -1,14 +1,9 @@
 <div align="center">
-  <a href="https://telegram.me/SIEGE_BR_bot">
-    <img src="https://img.shields.io/badge/%F0%9F%92%AC%20Telegram-SIEGE__BR__bot-blue.svg?style=flat-square" />
-  </a>
-  <a href="https://waffle.io/micalevisk/siege-telegram-bot">
-    <img src="https://badge.waffle.io/micalevisk/siege-telegram-bot.png?columns=all&style=flat-square" />
-  </a>
-  <a href="https://heroku.com">
-    <img src="http://heroku-badge.herokuapp.com/?app=siege-telegram-bot&style=flat" />
-  </a>
-  <div><b>SIEGE</b> - Sistema Inteligente de Ensino de Geografia para o Telegram</div>
+  <a href="https://telegram.me/SIEGE_BR_bot"><img src="https://img.shields.io/badge/%F0%9F%92%AC%20Telegram-SIEGE__BR__bot-blue.svg?style=flat-square" /></a>
+  <a href="https://waffle.io/micalevisk/siege-telegram-bot"><img src="https://badge.waffle.io/micalevisk/siege-telegram-bot.png?columns=all&style=flat-square" /></a>
+  <a href="https://heroku.com"><img src="http://heroku-badge.herokuapp.com/?app=siege-telegram-bot&style=flat" /></a>
+  <a href="http://micalevisk.mit-license.org"><img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square" /></a>
+  <div><strong>SIEGE Bot</strong> - <b>S</b>istema <b>I</b>nteligente de <b>E</b>nsino de <b>Ge</b>ografia para o Telegram</div>
   <sub>
     by
     <a href="https://github.com/micalevisk">Micael Levi</a>
@@ -19,12 +14,14 @@
 ## Sobre a base de conhecimento em [src/brain/prolog-controller/database](src/brain/prolog-controller/database)
 
 Os fatos disponíveis nos programas dispostos neste diretório são:
-> - `regiao(?Nome, ?QuantidadeEstados)`
-> - `estado(?Nome, ?Sigla, ?NomeRegiao, ?NomeCapital)`
-> - `tamanhos(-EstadosEAreas:list(NomeEstado-Area))`
-> - `municipio(?Nome, ?NomeEstado)`
+> - `regiao(?Nome:string, ?QuantidadeEstados:int)`
+> - `estado(?Nome:string, ?Sigla:string, ?NomeRegiao:string, ?NomeCapital:string)`
+> - `tamanho(-EstadosEAreas:list(NomeEstado-Area))`
+> - `municipio(?Nome:string, ?NomeEstado:string)`
+> - `questao(?Pergunta:string, -RespostaDada:string, -UsernameAutor:string, -IdAutor:int, -Votos:int, -Ano:int)`
 
-Pensando nos fatos em termos de tabela, as relações de integridade referencial ficam da seguinte forma:
+Pensando nos fatos em termos de tabela, o esquema do banco de conhecimentos fica da seguinte forma no modelo relacional:
+
 <img alt="diagrama RIR" src="src/brain/prolog-controller/database/images/diagrama-integridade-referencial.png" width="780">
 
 
@@ -35,17 +32,18 @@ Pensando nos fatos em termos de tabela, as relações de integridade referencial
   <table align="center">
     <tr align="center">
       <td align="center">
-        <b>
-          <a href="https://nodejs.org">
-            Node.Js v8
-          </a>
-        </b>
+        <b>crie um bot</b>
         <div>
-           &nbsp; &nbsp; &nbsp; &nbsp; pré-requisito &nbsp; &nbsp; &nbsp; &nbsp;
+          &nbsp; &nbsp; <a href="http://t.me/BotFather">@BotFather</a> &nbsp; &nbsp;
         </div>
       </td>
       <td align="center">
-        <b>clonar este repositório</b>
+        <b>instale</b>
+        <div><a href="http://www.swi-prolog.org" title="para o uso da linguagem Prolog">SWI-Prolog</a></div>
+        <div><a href="https://nodejs.org" title="framework base">Node.Js&reg;</a></div>
+      </td>
+      <td align="center">
+        <b>clone este repositório</b>
         <div>
           &nbsp; <kbd>git clone https://github.com/micalevisk/siege-telegram-bot</kbd> &nbsp;
         </div>
@@ -53,24 +51,18 @@ Pensando nos fatos em termos de tabela, as relações de integridade referencial
       <td align="center">
         <b>🙏</b>
         <div>
-          &nbsp; &nbsp; <kbd>npm install</kbd> &nbsp; &nbsp;
-        </div>
-      </td>
-      <td align="center">
-        <b>pegue o token</b>
-        <div>
-          &nbsp; &nbsp; com o <a href="http://t.me/BotFather">@BotFather</a> &nbsp; &nbsp;
+          &nbsp; &nbsp; <kbd>npm i</kbd> &nbsp; &nbsp;
         </div>
       </td>
     </tr>
   </table>
 </div>
 
-1. Altere o nome do arquivo [`.env.example`](.env.example) para **`.env`**
-3. Altere o conteúdo do arquivo renomeado para adicionar o token do seu bot
-2. E execute **`npm start`** no terminal
+1. Altere o nome do arquivo [`.env.example`](.env.example) para **`.env`**;
+3. Altere o conteúdo do arquivo renomeado para adicionar o token do seu bot (recuperado ao criar o bot);
+2. Execute **`npm start`** no terminal.
 
-## ~~Em Produção~~
+### ~~Em Produção~~
 Entre em contato com o bot [@SIEGE_BR_bot](http://t.me/SIEGE_BR_bot) no aplicativo [Telegram](https://telegram.org)
 
 # Perguntas que serão respondidas
@@ -222,7 +214,3 @@ As perguntas listadas a seguir contém apenas sentenças que o bot entenderá _(
 | 22  | `maior_area(MaiorArea, MaiorEstado), menor_area(MenorArea, MenorEstado).`   | __MaiorEstado__, __MenorEstado__ |
 | 36  | `relacao(+Nome, Relacao)`                                                   | __Relacao__                      |
 -->
-
-
-## License
-MIT: http://micalevisk.mit-license.org/
