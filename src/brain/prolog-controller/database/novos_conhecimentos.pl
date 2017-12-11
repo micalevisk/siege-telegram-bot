@@ -1,7 +1,7 @@
 /** <module> Novos Conhecimentos
 
 Este módulo contém regras para a maniupulação de fatos do
-tipo questao/5 a fim de gerenciar a aprendizagem dinâmica.
+tipo questao/6 a fim de gerenciar a aprendizagem dinâmica.
 
 @author Micael Levi
 @license MIT
@@ -9,7 +9,7 @@ tipo questao/5 a fim de gerenciar a aprendizagem dinâmica.
 
 :- encoding(utf8).
 
-%% questao(?Pergunta:string, +RespostaDada:string, +UsernameAutor:string, +IdAutor:int, +Votos:int)
+%% questao(?Pergunta:string, +RespostaDada:string, +UsernameAutor:string, +IdAutor:int, +Votos:int, +Ano:int)
 :- load_files('fatos_dinamicos.pl.lock', [encoding(utf8)]).
 
 
@@ -18,9 +18,9 @@ tipo questao/5 a fim de gerenciar a aprendizagem dinâmica.
 incrementar_voto(Pergunta, ArquivoConhecimentoExternos) :-
   incrementar_voto(Pergunta, _, ArquivoConhecimentoExternos).
 
-%! salvar_questao(+Pergunta:string, +RespostaDada:string, +UsernameAutor:string, +IdAutor:int, +ArquivoConhecimentoExternos:string)
-salvar_questao(Pergunta, RespostaDada, UsernameAutor, IdAutor, ArquivoConhecimentoExternos) :-
-  salvar_questao( questao(Pergunta, RespostaDada, UsernameAutor, IdAutor, 0), ArquivoConhecimentoExternos ).
+%! salvar_questao(+Pergunta:string, +RespostaDada:string, +UsernameAutor:string, +IdAutor:int, +Ano:int, +ArquivoConhecimentoExternos:string)
+salvar_questao(Pergunta, RespostaDada, UsernameAutor, IdAutor, Ano, ArquivoConhecimentoExternos) :-
+  salvar_questao( questao(Pergunta, RespostaDada, UsernameAutor, IdAutor, 0, Ano), ArquivoConhecimentoExternos ).
 
 
 %! incrementar_voto(+Pergunta:string, -VotosAtualizado:int, +ArquivoConhecimentoExternos:string)
@@ -28,17 +28,17 @@ salvar_questao(Pergunta, RespostaDada, UsernameAutor, IdAutor, ArquivoConhecimen
 %  computar +1 ao número de votos negativos.
 %  O fato será removido se VotosAtualizado for igual a 3.
 incrementar_voto(Pergunta, VotosAtualizado, ArquivoConhecimentoExternos) :-
-  questao(Pergunta, R, A, I, VotosAntigos),
+  questao(Pergunta, R, A, I, VotosAntigos, Ano),
   plus(1, VotosAntigos, VotosAtualizado),
   ( VotosAtualizado = 3 -> remover_questao(Pergunta, ArquivoConhecimentoExternos);
-  replace_existing_fact( questao(Pergunta,R,A,I,VotosAntigos), questao(Pergunta,R,A,I,VotosAtualizado) ),
+  replace_existing_fact( questao(Pergunta,R,A,I,VotosAntigos,Ano), questao(Pergunta,R,A,I,VotosAtualizado,Ano) ),
   atualizar_banco(ArquivoConhecimentoExternos) ).
 
 
 %! remover_questao(+Pergunta:string, +ArquivoConhecimentoExternos:string)
 %  Remove todas as questões que possuem a pergunta (String) passada.
 remover_questao(Pergunta, ArquivoConhecimentoExternos) :-
-  retract( questao(Pergunta,_,_,_,_) ),
+  retract( questao(Pergunta,_,_,_,_,_) ),
   atualizar_banco(ArquivoConhecimentoExternos).
 
 
@@ -68,9 +68,3 @@ atualizar_banco(ArquivoConhecimentoExternos) :-
 replace_existing_fact(OldFact, NewFact) :-
   ( call(OldFact) -> retract(OldFact),
     assertz(NewFact); true ).
-
-
-%%%%%%%% TESTES %%%%%%%%
-% ?- salvar_questao( 'qual o estado com maior população', 'sei lá', 'micalevisk', '1234' )
-% ?- incrementar_voto( 'qual o estado com maior população', V ).
-% ?- remover_questao( 'qual o estado com maior população' ).

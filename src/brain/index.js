@@ -85,15 +85,22 @@ class Brain {
   responderMensagem({ id, username, text: msg }) {
 
     const controladorConsulta = async (query) => {
-      const res = await query.next() // dá {} se a resposta for True
-      if (res.Resposta) return { text: parser.tratarTexto(res.Resposta) }
-      if (res.RespostaDada && typeof res.RespostaDada === 'string') {
-        return (id === res.IdAutor)
-        ? { text: parser.tratarTexto(res.RespostaDada) }
-        : { respostaDada: parser.tratarTexto(res.RespostaDada), pergunta: res.Pergunta, qtdVotos: res.Votos }
+      try {
+
+        const res = await query.next() // dá {} se a resposta for True
+        if (res.Resposta) return { text: parser.tratarTexto(res.Resposta) }
+        if (res.RespostaDada && typeof res.RespostaDada === 'string') {
+          return (id === res.IdAutor)
+          ? { text: parser.tratarTexto(res.RespostaDada) }
+          : { respostaDada: parser.tratarTexto(res.RespostaDada), pergunta: res.Pergunta, qtdVotos: res.Votos }
+        }
+        if (res.RespostaAusente && typeof res.RespostaAusente === 'string') return { respostaAusente: parser.tratarTexto(res.RespostaAusente), pergunta: res.Pergunta }
+        return res
+
+      } catch (e) {
+        console.log('[responderMensagem::error]', e)
+        return null
       }
-      if (res.RespostaAusente && typeof res.RespostaAusente === 'string') return { respostaAusente: parser.tratarTexto(res.RespostaAusente), pergunta: res.Pergunta }
-      return res
     }
 
     return new Promise((resolve) => {
