@@ -24,7 +24,7 @@ ${strUtils.asCode('5.')} as perguntas que eu já sei responder estão listadas $
 const COMMANDS_AVAILABLE = `${strUtils.asBold('Olá, eu posso te ajudar a conhecer o Brasil 🇧🇷!')} 😉
 Me faça algumas perguntas sobre a geografia brasileira que talvez eu saiba respondê-las 😊
 
-📡 Comando disponível:
+📡 Comandos disponíveis:
 ${strUtils.asLink('/help')} - ${strUtils.asCode('listar observações e instruções.')}
 ${strUtils.asLink('/cancelar')} - ${strUtils.asCode('parar espera do bot.')}`
 // ------------------------------------------------------------------------------------------------------------- //
