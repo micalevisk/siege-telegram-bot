@@ -22,7 +22,12 @@ Os fatos disponíveis nos programas dispostos neste diretório são:
 
 Pensando nos fatos em termos de tabela, o esquema do banco de conhecimentos fica da seguinte forma no modelo relacional:
 
-<img alt="diagrama RIR" src="src/brain/prolog-controller/database/images/diagrama-integridade-referencial.png" width="780">
+<!-- diagrama feito em  https://erdplus.com -->
+<img alt="diagrama RIR" src="docs/diagrams/diagrama-integridade-referencial.png" align="middle" width="780">
+
+## Visão geral da estrutura
+<!-- diagrama feito em  https://www.draw.io -->
+<img alt="diagrama RIR" src="docs/diagrams/arquitetura-visão-geral.png" align="middle">
 
 
 -------------
@@ -62,8 +67,6 @@ Pensando nos fatos em termos de tabela, o esquema do banco de conhecimentos fica
 3. Altere o conteúdo do arquivo renomeado para adicionar o token do seu bot (recuperado ao criar o bot);
 2. Execute **`npm start`** no terminal.
 
-### ~~Em Produção~~
-Entre em contato com o bot [@SIEGE_BR_bot](http://t.me/SIEGE_BR_bot) no aplicativo [Telegram](https://telegram.org)
 
 # Perguntas que serão respondidas
 As perguntas listadas a seguir contém apenas sentenças que o bot entenderá _(InSeNsÍvEl aO cAsO)_
