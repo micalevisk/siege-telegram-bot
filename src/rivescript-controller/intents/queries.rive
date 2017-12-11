@@ -101,22 +101,7 @@
 ^   atomics_to_string(["(@naodiscordancia)"], Resposta)
 ^ )
 
-
-// ======= :17: ======= //
-+ * ((@ficapresente) [localizado]|se localiza) em qual (@regiaosubstantivo)
-- <set nome=<call>allFirstToUpper <star1></call>>
-^ §
-^ if_then_else(
-^   regiao_de("<star1>", Regiao),
-^   atomics_to_string(["{<get nome>} (@ficapresente) na região ", Regiao], Resposta),
-^   atomics_to_string(["`<star1>` não é um Estado ou município do Brasil"], Resposta)
-^ )
-
-
 // ======= :14: ======= //
-// - <star4> != undefined => <set prep=<star2>>
-// * <star4> != undefined => <set ne=<star3>>
-
 + o [estado] [(@dopreposicao)] * (@temposse) quant(a|o)s (@cidadesubstantivo)s
 - §
 ^ if_then_else(
@@ -125,3 +110,17 @@
 ^     atomics_to_string(["O estado &<star2>& <star3> `", QtdMunicipios, "` municípios"], Resposta) ),
 ^   atomics_to_string(["`<star2>` não é um Estado do Brasil"], Resposta)
 ^ )
+
+
+// ======= :17: ======= //
+// + * (((@ficapresente) [localizado])|(se localiza)) em (qual|que) (@regiaosubstantivo)
++ * (@ficapresente) [localizado] em (qual|que) (@regiaosubstantivo)
+- <set nome=<call>allFirstToUpper <star1></call>>
+^ §
+^ if_then_else(
+^   regiao_de("<star1>", Regiao),
+^   atomics_to_string(["{<get nome>} está localizado na região ", Regiao], Resposta),
+^   atomics_to_string(["`<star1>` não é um Estado ou município do Brasil"], Resposta)
+^ )
+
+

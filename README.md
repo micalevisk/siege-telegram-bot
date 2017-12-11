@@ -84,7 +84,7 @@ As perguntas listadas a seguir contém apenas sentenças que o bot entenderá _(
 3. `Município` é [a] capital/sede/metrópole do/de/da `Estado`
 4. Existe/Há algum estado cuja [a] capital/sede/metrópole tem/possua o mesmo nome do estado?
 14. O [estado [do/de/da]] `Estado` tem/possui quantas/quantos cidades/municípios?
-17. `Estado`/`Município` (está/fica [localizado])/(se localiza) em qual região?
+17. `Estado`/`Município` está/fica [localizado] em qual/que região?
 
 <!--§
 ### *Capitais dos Estados Brasileiros*
