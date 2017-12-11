@@ -27,7 +27,7 @@ Pensando nos fatos em termos de tabela, o esquema do banco de conhecimentos fica
 
 ## Visão geral da estrutura
 <!-- diagrama feito em  https://www.draw.io -->
-<img alt="diagrama RIR" src="docs/diagrams/arquitetura-visão-geral.png" align="middle">
+<img alt="estrutura" src="docs/diagrams/arquitetura-visão-geral.png" align="middle">
 
 
 -------------
