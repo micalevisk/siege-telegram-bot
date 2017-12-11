@@ -1,8 +1,13 @@
 /**
  * Main code.
- * Inicializa e inicia o bot.
+ * Inicializa e controla o bot.
  *
  * emojis (c) https://emojipedia.org
+ *
+ * Storage on ctx.session:
+ * - ultima_resposta_dada
+ * - esperando_msg
+ * - ultima_pergunta_identificada
  */
 
 const { Extra, Markup, session } = require('telegraf')
@@ -14,6 +19,8 @@ const { strQueriesAprendizado } = require('./brain/aprendizado-utils')
 const DEFAULT_REPLY_OPTIONS = Extra.HTML().notifications(false).webPreview(false)
 
 // ========================================== MENSAGENS PRÉ-DEFINIDAS ========================================== //
+const MSG_ERRO_FUNCIONALIDADE = 'desculpe, ocorreu um problema 🔧...\nNão tente usar essa funcionalidade por enquanto.'
+
 const HELP_MESSAGE = `${strUtils.asBold('📋Observações:')}
 ${strUtils.asCode('1.')} conheço os sinônimos de várias palavras;
 ${strUtils.asCode('2.')} entendo palavras mesmo sem a acentuação devida;
@@ -28,6 +35,24 @@ Me faça algumas perguntas sobre a geografia brasileira que talvez eu saiba resp
 ${strUtils.asLink('/help')} - ${strUtils.asCode('listar observações e instruções.')}
 ${strUtils.asLink('/cancelar')} - ${strUtils.asCode('parar espera do bot.')}`
 // ------------------------------------------------------------------------------------------------------------- //
+
+
+/**
+ * Converte uma data no formato Unix
+ * e recupera o ano.
+ * @param {number} dateUnixLike
+ * @return {number} ano da data
+ */
+const getYearFromUnixTimestamp = dateUnixLike => new Date(dateUnixLike * 1000).getFullYear()
+
+/**
+ * Recupera as opções para respostas
+ * do bot usando as opções padrão, sem alterá-las
+ * adicionando a opção 'inReplyTo'.
+ * @param {number} messageId
+ * @return {object}
+ */
+const getExtraWithInReplyTo = messageId => Object.assign({}, DEFAULT_REPLY_OPTIONS, Extra.inReplyTo(messageId))
 
 
 /**
@@ -73,23 +98,28 @@ function initializeBot(bot, rsBrain) {
   /**
    *
    * @param {*} ctx
-   * @param {object} next
    */
-  function handlerLerResposta(ctx, next) {
+  function handlerLerResposta(ctx) {
     ctx.session.esperando_msg = false
 
-    const { session: { ultima_pergunta_identificada }, from: { username, id }, message: { text, message_id } } = ctx
+    const { session: { ultima_pergunta_identificada }, from: { username, id }, message: { date, text, message_id } } = ctx
 
     const controladorConsulta = async (query) => {
-      const res = await query.next()
-      return res !== false
+      try {
+        const res = await query.next()
+        return res !== false
+      } catch (e) {
+        console.log('[handlerLerResposta::error]', e)
+        return null
+      }
     }
 
-    return brain.plg.executeQuery(strQueriesAprendizado.salvarQuestao(ultima_pergunta_identificada, text, username, id), controladorConsulta)
+    return brain.plg
+      .executeQuery(strQueriesAprendizado.salvarQuestao(ultima_pergunta_identificada, text, username, id, getYearFromUnixTimestamp(date)), controladorConsulta)
       .then((salvou) => {
         return (salvou)
-            ? ctx.reply('Obrigado por me ensinar!!', DEFAULT_REPLY_OPTIONS.inReplyTo(message_id))
-            : next()
+             ? ctx.reply('Obrigado por me ensinar!!', getExtraWithInReplyTo(message_id))
+             : ctx.reply(MSG_ERRO_FUNCIONALIDADE)
       })
   }
 
@@ -129,13 +159,13 @@ function initializeBot(bot, rsBrain) {
         ctx.session.ultima_pergunta_identificada = r.pergunta
         ctx.session.ultima_resposta_dada = r.respostaAusente
         return handlerRespostaComInlineKeyboard(ctx, Markup.inlineKeyboard([
-          Markup.urlButton('🔍', 'http://google.com/search?q=' + ctx.session.ultima_pergunta_identificada.replace(/\s/g, '+')),
+          Markup.urlButton('🔍', `http://google.com/search?q=${ctx.session.ultima_pergunta_identificada.replace(/\s/g, '+')}`),
           Markup.callbackButton('📝', 'ensinar'),
           Markup.callbackButton('😕', 'remover_opcoes'),
         ]))
       })
       .catch((msgErro) => {
-        if (typeof msgErro === 'string') return reply(msgErro, DEFAULT_REPLY_OPTIONS.inReplyTo(message_id))
+        if (typeof msgErro === 'string') return reply(msgErro, getExtraWithInReplyTo(message_id))
         return next()
       })
   }
@@ -161,14 +191,21 @@ function initializeBot(bot, rsBrain) {
   bot.hears(/^[^/\s]+.+$/i, callBrainMiddleware)
 
 
-  bot.action('incrementar_votos', (ctx, next) => {
+  bot.action('incrementar_votos', (ctx) => {
     const controladorConsulta = async (query) => {
-      const res = await query.next()
-      return res.Votos
+      try {
+        const res = await query.next()
+        return res.Votos
+      } catch (e) {
+        console.log('[bot-incrementar_votos::error]', e)
+        return null
+      }
     }
 
-    return brain.plg.executeQuery(strQueriesAprendizado.incrementarVoto(ctx.session.ultima_pergunta_identificada), controladorConsulta)
+    return brain.plg
+      .executeQuery(strQueriesAprendizado.incrementarVoto(ctx.session.ultima_pergunta_identificada), controladorConsulta)
       .then((qtdVotos) => {
+        if (qtdVotos === null) return ctx.reply(MSG_ERRO_FUNCIONALIDADE)
 
         if (qtdVotos > 3) {
           return ctx.answerCbQuery('voto negativo computado!')
