@@ -18,11 +18,7 @@
  * Para as consultas, use aspas duplas ao invés das simples, o controller irá converter.
  *
  *
- * FIXME:
- * - "normalizar" retornos visando retirar os "escapes" da resposta do Prolog
- * - tratar consultas que retornam 'false'
  * TODO:
- * - remover escapes da resposta dada pelo Prolog
  * - adicionar siglas em respostas que tenham estados
  * - adicionar emoji/emoções para as respostas
  *
@@ -45,12 +41,12 @@
 - §
 ^ texto("<star>", Pergunta),
 ^ if_then_else(
-^   questao("<star>", RT, UsernameAutor, IdAutor, Votos),
+^   questao("<star>", RT, UsernameAutor, IdAutor, Votos, Ano),
 ^   (
 ^      if_then_else(
 ^        <get id> == IdAutor,
-^        atomics_to_string(["A resposta que **você** me deu foi:\n", "`", RT, "`"], RespostaDada),
-^        atomics_to_string(["De acordo com @@", UsernameAutor, "@:\n", "`", RT, "`"], RespostaDada)
+^        atomics_to_string(["__[", Ano, "]__\n", "A resposta que **você** me deu foi:\n", "`", RT, "`"], RespostaDada),
+^        atomics_to_string(["__[", Ano, "]__\n", "De acordo com @@", UsernameAutor, "@:\n", "`", RT, "`"], RespostaDada)
 ^      )
 ^   ),
 ^   atomics_to_string(["__Não sei te responder...__\nmas você pode me ensinar, se quiser."], RespostaAusente)
