@@ -45,8 +45,8 @@
 ^   (
 ^      if_then_else(
 ^        <get id> == IdAutor,
-^        atomics_to_string(["__[", Ano, "]__\n", "A resposta que **você** me deu foi:\n", "`", RT, "`"], RespostaDada),
-^        atomics_to_string(["__[", Ano, "]__\n", "De acordo com @@", UsernameAutor, "@:\n", "`", RT, "`"], RespostaDada)
+^        atomics_to_string(["__[", Ano, "]__\n", "A resposta que **você** me deu foi:\n\n", RT], RespostaDada),
+^        atomics_to_string(["__[", Ano, "]__\n", "De acordo com @@", UsernameAutor, "@:\n\n", RT], RespostaDada)
 ^      )
 ^   ),
 ^   atomics_to_string(["__Não sei te responder...__\nmas você pode me ensinar, se quiser."], RespostaAusente)
