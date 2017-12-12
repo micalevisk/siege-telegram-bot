@@ -45,6 +45,7 @@ Pensando nos fatos em termos de tabela, o esquema do banco de conhecimentos fica
       <td align="center">
         <b>instale</b>
         <div><a href="http://www.swi-prolog.org" title="para o uso da linguagem Prolog">SWI-Prolog</a></div>
+        <div><a href="https://www.npmjs.com/get-npm" title="framework base">NPM</a></div>
         <div><a href="https://nodejs.org" title="framework base">Node.Js&reg;</a></div>
       </td>
       <td align="center">
@@ -56,7 +57,7 @@ Pensando nos fatos em termos de tabela, o esquema do banco de conhecimentos fica
       <td align="center">
         <b>🙏</b>
         <div>
-          &nbsp; &nbsp; <kbd>npm i</kbd> &nbsp; &nbsp;
+          &nbsp; &nbsp; <kbd>npm install</kbd> &nbsp; &nbsp;
         </div>
       </td>
     </tr>
