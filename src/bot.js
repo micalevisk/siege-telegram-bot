@@ -38,6 +38,33 @@ ${strUtils.asLink('/cancelar')} - ${strUtils.asCode('parar espera do bot.')}`
 
 
 /**
+ * Trata as marcações/entidades de um texto,
+ * a fim de obter uma saída formatada
+ * na mensagem visando a formatação HTML.
+ * @param {string} text
+ * @param {MessageEntity} entities
+ * @see https://core.telegram.org/bots/api#messageentity
+ */
+function getWithTags(text, entities) {
+  if (!entities) return text
+
+  const tags = {
+    bold: 'b',
+    italic: 'i',
+  }
+
+  let result = ''
+  const posFinal = entities.reduce((last, entity) => {
+    const [begin, end] = [entity.offset, entity.offset + entity.length]
+    const type = tags[entity.type] || entity.type
+    result += `${text.slice(last, begin)}<${type}>${text.slice(begin, end)}</${type}>`
+    return end
+  }, 0)
+
+  return result + text.slice(posFinal)
+}
+
+/**
  * Converte uma data no formato Unix
  * e recupera o ano.
  * @param {number} dateUnixLike
@@ -102,7 +129,7 @@ function initializeBot(bot, rsBrain) {
   function handlerLerResposta(ctx) {
     ctx.session.esperando_msg = false
 
-    const { session: { ultima_pergunta_identificada }, from: { username, id }, message: { date, text, message_id } } = ctx
+    const { session: { ultima_pergunta_identificada }, from: { username, id }, message: { date, text, message_id, entities } } = ctx
 
     const controladorConsulta = async (query) => {
       try {
@@ -115,7 +142,7 @@ function initializeBot(bot, rsBrain) {
     }
 
     return brain.plg
-      .executeQuery(strQueriesAprendizado.salvarQuestao(ultima_pergunta_identificada, text, username, id, getYearFromUnixTimestamp(date)), controladorConsulta)
+      .executeQuery(strQueriesAprendizado.salvarQuestao(ultima_pergunta_identificada, getWithTags(text, entities), username, id, getYearFromUnixTimestamp(date)), controladorConsulta)
       .then((salvou) => {
         return (salvou)
              ? ctx.reply('Obrigado por me ensinar!!', getExtraWithInReplyTo(message_id))
