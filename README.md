@@ -45,7 +45,7 @@ Pensando nos fatos em termos de tabela, o esquema do banco de conhecimentos fica
       <td align="center">
         <b>instale</b>
         <div><a href="http://www.swi-prolog.org" title="para o uso da linguagem Prolog">SWI-Prolog</a></div>
-        <div><a href="https://www.npmjs.com/get-npm" title="framework base">NPM</a></div>
+        <div><a href="https://www.npmjs.com/get-npm" title="gerenciador de pacotes para o Node.Js">NPM</a></div>
         <div><a href="https://nodejs.org" title="framework base">Node.Js&reg;</a></div>
       </td>
       <td align="center">
@@ -144,9 +144,6 @@ As perguntas listadas a seguir contém apenas sentenças que o bot entenderá _(
 37. Qual [é] a bandeira do/de/da `Estado`/Brasil?
 -->
 
-## Expressões regulares utilizadas para identificar as perguntas
-> - o texto deve ser truncado (espaços excedentes removidos) e a comparação deve ser case insensitive
-> - os termos utilizados no casamento são os sinônimos principais
 
 <!--§
 | no. | regex |
