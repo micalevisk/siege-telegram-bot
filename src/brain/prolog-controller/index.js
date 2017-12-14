@@ -1,6 +1,5 @@
-require('../../../lib/typedefs')
 const swipl = require('swipl-stdio')
-const { CHAR_EVAL_PROLOG, PATH_MAIN_PL, PATH_CONHECIMENTOS_EXTERNOS } = require('./config')
+const { CHAR_EVAL_PROLOG, PATH_MAIN_PL } = require('./config')
 
 
 /**
