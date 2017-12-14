@@ -125,12 +125,12 @@ function tratarMarcacoes(marcador, tratador) {
  * @param {string} strComTags
  * @return {string} O texto tratado (sem marcações)
  */
-function tratarTodasMarcacoes(strComTags) { // TODO: refatorar
+function tratarTodasMarcacoes(strComTags) {
   return pipe(
     tratarMarcacoes(MARCADORES.nomeproprio, allFirstToUpper),
     tratarMarcacoes(MARCADORES.estado_com_preposicao, normalizarNomeEstado),
     tratarMarcacoes(MARCADORES.codigo, strUtils.asCode),
-    tratarMarcacoes(MARCADORES.link, strUtils.asLink),
+    tratarMarcacoes(MARCADORES.hiperlink, strUtils.asLink),
     tratarMarcacoes(MARCADORES.italico, strUtils.asItalic),
     tratarMarcacoes(MARCADORES.negrito, strUtils.asBold),
   )(strComTags)
