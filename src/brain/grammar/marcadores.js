@@ -1,4 +1,8 @@
-/* eslint-disable comma-dangle */
+/**
+ * @param {string} sbStart símbolo que marca a posição inicial
+ * @param {string} sbEnd símbolo que marca a posição final
+ */
+const Marking = (sbStart, sbEnd) => ({ sb_start: sbStart, sb_end: sbEnd })
 
 /**
  * Definição dos marcadores para o pós-tratamento
@@ -13,38 +17,15 @@
  * @property {Marking} marcadores.nomeproprio
  * @property {Marking} marcadores.estado_com_preposicao
  * @property {Marking} marcadores.codigo
- * @property {Marking} marcadores.link
+ * @property {Marking} marcadores.hiperlink
  * @property {Marking} marcadores.italico
  * @property {Marking} marcadores.negrito
  */
 module.exports = {
-  nomeproprio: {
-    sb_start: '{',
-    sb_end: '}'
-  },
-
-  estado_com_preposicao: {
-    sb_start: '&',
-    sb_end: '&'
-  },
-
-  codigo: {
-    sb_start: '`',
-    sb_end: '`'
-  },
-
-  link: {
-    sb_start: '@',
-    sb_end: '@'
-  },
-
-  italico: {
-    sb_start: '__',
-    sb_end: '__'
-  },
-
-  negrito: {
-    sb_start: '**',
-    sb_end: '**'
-  }
+  nomeproprio: Marking('{', '}'),
+  estado_com_preposicao: Marking('&', '&'),
+  codigo: Marking('`', '`'),
+  hiperlink: Marking('@', '@'),
+  italico: Marking('__', '__'),
+  negrito: Marking('**', '**'),
 }
