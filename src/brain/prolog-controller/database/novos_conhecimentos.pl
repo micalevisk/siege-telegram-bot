@@ -20,6 +20,8 @@ incrementar_voto(Pergunta, ArquivoConhecimentoExternos) :-
 
 %! salvar_questao(+Pergunta:string, +RespostaDada:string, +UsernameAutor:string, +IdAutor:int, +Ano:int, +ArquivoConhecimentoExternos:string)
 salvar_questao(Pergunta, RespostaDada, UsernameAutor, IdAutor, Ano, ArquivoConhecimentoExternos) :-
+  string_not_empty(RespostaDada),
+  string_not_empty(Pergunta),
   salvar_questao( questao(Pergunta, RespostaDada, UsernameAutor, IdAutor, 0, Ano), ArquivoConhecimentoExternos ).
 
 
@@ -68,3 +70,7 @@ atualizar_banco(ArquivoConhecimentoExternos) :-
 replace_existing_fact(OldFact, NewFact) :-
   ( call(OldFact) -> retract(OldFact),
     assertz(NewFact); true ).
+
+string_empty('').
+string_empty("").
+string_not_empty(S) :- not(string_empty(S)).
