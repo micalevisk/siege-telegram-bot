@@ -92,8 +92,6 @@ function initializeBot(bot, rsBrain) {
    * @param {*} ctx
    */
   function handlerLerResposta(ctx) {
-    ctx.session.esperando_msg = false
-
     const { session: { ultima_pergunta_identificada }, from: { username, id }, message: { date, text, message_id, entities } } = ctx
 
     const controladorConsulta = async (query) => {
@@ -106,13 +104,20 @@ function initializeBot(bot, rsBrain) {
       }
     }
 
-    return brain.plg
-      .executeQuery(strQueriesAprendizado.salvarQuestao(ultima_pergunta_identificada, brain.obterTextoComEntidades(text, entities), username, id, brain.obterAnoDe(date)), controladorConsulta)
+    const respostaDada = strUtils.removeEmojis( text.trim() )
+    if (respostaDada) {
+      ctx.session.esperando_msg = false
+
+      return brain.plg
+      .executeQuery(strQueriesAprendizado.salvarQuestao(ultima_pergunta_identificada, brain.obterTextoComEntidades(respostaDada, entities), username, id, brain.obterAnoDe(date)), controladorConsulta)
       .then((salvou) => {
         return (salvou)
-             ? ctx.reply('Obrigado por me ensinar!!', getExtraWithInReplyTo(message_id))
-             : ctx.reply(MSG_ERRO_FUNCIONALIDADE)
+        ? ctx.reply('Obrigado por me ensinar!!', getExtraWithInReplyTo(message_id))
+        : ctx.reply(MSG_ERRO_FUNCIONALIDADE)
       })
+    }
+
+    return ctx.reply('Não posso salvar uma resposta vazia (emojis removidos), tente somente caracteres válidos...', getExtraWithInReplyTo(message_id))
   }
 
 
