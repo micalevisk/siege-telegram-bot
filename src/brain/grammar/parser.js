@@ -103,7 +103,7 @@ function normalizarNomeEstado(nomeEstado) {
  * essa função realizará tal processo de conversão.
  * OBS: não admite símbolos de diferentes tags possuem um caractere em comum.
  *
- * tratarMarcacoes :: (String, { sb_start: String, sb_end: String }, String -> String) -> (String -> String)
+ * tratarMarcacoes :: ({ sb_start: String, sb_end: String }, String -> String) -> (String -> String)
  * @param {Marking} marcador
  * @param {function} tratador
  * @return {function} Função que tratará um texto de acordo com os parâmetros definidos
