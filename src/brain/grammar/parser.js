@@ -1,10 +1,17 @@
-require('../../../lib/typedefs')
-
-const MARCADORES = require('./marcadores')
 const { splitIntoWords } = require('../../../lib/utils/string_utils')
 const { nomeEstadoComoPreposicao } = require('./preposicoes')
-// const { padronizarSinonimos } = require('./sinonimos')
 const strUtils = require('../../../lib/utils/string_utils')
+const MARCADORES = require('./marcadores')
+
+
+/**
+ * @param {array} fns - Funções que serão aplicadas.
+ * @return {function}
+ */
+function pipe(...fns) {
+  const PIPE = (f, g) => (...args) => g( f(...args) )
+  return fns.reduce(PIPE)
+}
 
 /**
  * Transforma para upper case todos as primeiras letras
@@ -59,22 +66,6 @@ function allToLowerExceptFirst(word) {
 }
 
 /**
- * Recupera todos os nomes que iniciam com maísculo.
- * Além de nomes compostos (por hífen e/ou preposições).
- * Normaliza os nomes caso o parâmetro seja string.
- * Admite que o texto está devidamente estruturado.
- * @param {string|string[]} str A string ou os tokens (texto normalizado e dividido em palavras)
- * @return {string[]|null} A lista de substantivos identificados, ou 'null' caso não encontre algum
- */
-function getSubstantivosProprios(str) {
-  // const re = /[ÀÈÌÒÙÁÉÍÓÚÃÕÇA-Z][àèìòùáéíóúãõça-z]+((\s+|-)(d(as?|es?|os?)\s+|d\')?[ÀÈÌÒÙÁÉÍÓÚÃÕÇA-Z][àèìòùáéíóúãõça-z]+)*/g
-  const re = /[ÀÈÌÒÙÁÉÍÓÚÃÕÇA-Z][àèìòùáéíóúãõça-z]+((\s+|-)(d(as?|es?|os?)\s+|d')?[ÀÈÌÒÙÁÉÍÓÚÃÕÇA-Z]([.]|[àèìòùáéíóúãõça-z]*))*/g
-  const tokens = (typeof str === 'string') ? splitIntoWords(str).map(allToLowerExceptFirst) : str
-  const normalizado = tokens.join(' ')
-  return normalizado.match(re)
-}
-
-/**
  * Recupera o primeiro nome identificado em um texto.
  * Admite que o texto está separando (sintáticamente) os nomes próprios.
  * @param {string|string[]} str O texto alvo ou os tokens (lexical)
@@ -94,6 +85,92 @@ function getPrimeiroSubstantivoProprio(str, fromIndex = 0) {
 }
 
 /**
+ * Padroniza o nome de um estado brasileiro
+ * capitalizando-o e adicionando a sua devida preposição.
+ * Utilizado na exibição.
+ * @param {string} nomeEstado
+ * @return {string}
+ */
+function normalizarNomeEstado(nomeEstado) {
+  return allFirstToUpper( nomeEstadoComoPreposicao(nomeEstado) )
+}
+
+/**
+ * Dado um texto, as tags (marcadores) que definem
+ * os símbolos inicial e final, e uma função que
+ * realiza a conversão/tratamento do texto que está
+ * entre os símbolos marcadores,
+ * essa função realizará tal processo de conversão.
+ * OBS: não admite símbolos de diferentes tags possuem um caractere em comum.
+ *
+ * tratarMarcacoes :: (String, { sb_start: String, sb_end: String }, String -> String) -> (String -> String)
+ * @param {Marking} marcador
+ * @param {function} tratador
+ * @return {function} Função que tratará um texto de acordo com os parâmetros definidos
+ */
+function tratarMarcacoes(marcador, tratador) {
+  return (str) => {
+    const inicio = str.indexOf(marcador.sb_start) // primeiro ocorrência da tag inicial
+    const fim    = str.lastIndexOf(marcador.sb_end) // última ocorrência da tag final
+    return (inicio >= 0 && fim >= 0)
+           ? str.slice(0, inicio) + tratador( str.substring(inicio + marcador.sb_start.length, fim) ) + str.slice(fim + marcador.sb_end.length)
+           : str
+  }
+}
+
+/**
+ * Analisa o texto para substituir/tratar
+ * todas as marcações encontradas
+ * por seus valores válidos.
+ * @param {string} strComTags
+ * @return {string} O texto tratado (sem marcações)
+ */
+function tratarTodasMarcacoes(strComTags) { // TODO: refatorar
+  return pipe(
+    tratarMarcacoes(MARCADORES.nomeproprio, allFirstToUpper),
+    tratarMarcacoes(MARCADORES.estado_com_preposicao, normalizarNomeEstado),
+    tratarMarcacoes(MARCADORES.codigo, strUtils.asCode),
+    tratarMarcacoes(MARCADORES.link, strUtils.asLink),
+    tratarMarcacoes(MARCADORES.italico, strUtils.asItalic),
+    tratarMarcacoes(MARCADORES.negrito, strUtils.asBold),
+  )(strComTags)
+}
+
+
+/**
+ * Trata as marcações/entidades de um texto,
+ * a fim de obter uma saída formatada
+ * na mensagem visando a formatação HTML.
+ * @param {string} text
+ * @param {MessageEntity} entities
+ * @return {string}
+ * @see https://core.telegram.org/bots/api#messageentity
+ */
+exports.getWithTags = (text, entities) => {
+  if (!entities) return text
+  const tagsHTML = {
+    bold: strUtils.asBold,
+    italic: strUtils.asItalic,
+    code: strUtils.asCode,
+    pre: strUtils.asPre,
+  }
+
+  const result = entities.reduce(({ str, last }, entity) => {
+
+    const [begin, end] = [entity.offset, entity.offset + entity.length]
+    const parseEntity = tagsHTML[entity.type]
+    const updatedText = (parseEntity)
+                        ? text.slice(last, begin) + parseEntity( text.slice(begin, end) )
+                        : text.slice(last, end)
+
+    return { str: str + updatedText, last: end }
+
+  }, { str: '', last: 0 })
+
+  return result.str + text.slice(result.last)
+}
+
+/**
  * Recupera o primeiro nome próprio encontrado
  * a partir de uma posição, e transforma
  * os caracteres em minúsculo e escapa
@@ -107,18 +184,6 @@ exports.getPrimeiroSubstantivoProprioNormalizado = (str, fromIndex = 0) => {
   return (nome) ? nome.palavra.toLowerCase().replace(/'/g, "\\'") : null
 }
 
-
-/**
- * Padroniza o nome de um estado brasileiro
- * capitalizando-o e adicionando a sua devida preposição.
- * Utilizado na exibição.
- * @param {string} nomeEstado
- * @return {string}
- */
-function normalizarNomeEstado(nomeEstado) {
-  return allFirstToUpper( nomeEstadoComoPreposicao(nomeEstado) )
-}
-
 exports.normalizarNomeEstado = nomeEstado => normalizarNomeEstado(nomeEstado)
 
 /**
@@ -129,9 +194,7 @@ exports.normalizarNomeEstado = nomeEstado => normalizarNomeEstado(nomeEstado)
  * @param {string} nome
  * @return {string}
  */
-exports.normalizarNomeProprio = (nome) => {
-  return allFirstToUpper(nome)
-}
+exports.normalizarNomeProprio = nome => allFirstToUpper(nome)
 
 /**
  * @param {string} str
@@ -157,78 +220,37 @@ exports.getPrimeiroNumero = (str, fromIndex = 0) => {
  * @param {string} str Texto a ser tratado
  * @return {string} O texto normalizado
  */
-exports.corrigirTexto = (str) => {
-  return str.replace(/['"]/g, '\\$&')
-}
+exports.corrigirTexto = str => str.replace(/['"]/g, '\\$&')
 
 /**
- * Realiza o processo inversa da "correção" do texto.
+ * Realiza o processo inversa da "correção" do texto de resposta.
  * Além de tratar as marcações (removendo-as e substituindo devidamente).
  * @param {string} str O texto a ser tratado
  * @return {string} O texto tratado
  */
-exports.tratarTexto = (str) => {
-  return tratarTodasMarcacoes( str.replace(/\\(')/g, '$1') )
-}
+exports.tratarTexto = str => tratarTodasMarcacoes( str.replace(/\\(')/g, '$1') )
 
 /**
- * Escapar os meta-caracteres das expressões regulares.
- * @param {strin} str
- * @return {string} A string com os caracteres escapados
+ * Converte uma data no formato Unix
+ * e recupera o ano.
+ * @param {number} dateUnixLike
+ * @return {number} ano da data
  */
-function escaparMetacaracteres(str) {
-  return str.replace(/[{}()|^$*?+[\]/\\]/g, '\\$&')
-}
-
-/**
- * Dado um texto, as tags (marcadores) que definem
- * os símbolos inicial e final, e uma função que
- * realiza a conversão/tratamento do texto que está
- * entre os símbolos marcadores,
- * essa função realizará tal processo de conversão.
- * OBS: não admite símbolos de diferentes tags possuem um caractere em comum.
- *
- * tratarMarcacoes :: (String, { sb_start: String, sb_end: String }, String -> String) -> String
- * @param {string} str
- * @param {Marking} marcador
- * @param {function} tratador
- * @return {string} A str sem o marcador e com o texto (entre os marcadores) tratado
- */
-function tratarMarcacoes(str, marcador, tratador) {
-  const inicio = str.indexOf(marcador.sb_start) // primeiro ocorrência da tag inicial
-  const fim    = str.lastIndexOf(marcador.sb_end) // última ocorrência da tag final
-
-  return (inicio >= 0 && fim >= 0)
-       ? str.slice(0, inicio) + tratador( str.substring(inicio + marcador.sb_start.length, fim) ) + str.slice(fim + marcador.sb_end.length)
-       : str
-}
+exports.getYearFromUnixTimestamp = dateUnixLike => new Date(dateUnixLike * 1000).getFullYear()
 
 
 /**
- * @param {array} fns - Funções que serão aplicadas.
- * @return {function}
+ * Recupera todos os nomes que iniciam com maísculo.
+ * Além de nomes compostos (por hífen e/ou preposições).
+ * Normaliza os nomes caso o parâmetro seja string.
+ * Admite que o texto está devidamente estruturado.
+ * @param {string|string[]} str A string ou os tokens (texto normalizado e dividido em palavras)
+ * @return {string[]|null} A lista de substantivos identificados, ou 'null' caso não encontre algum
  */
-function pipe(...fns) {
-  const PIPE = (f, g) => (...args) => g( f(...args) );
-  return fns.reduce(PIPE);
+function getSubstantivosProprios(str) {
+  // const re = /[ÀÈÌÒÙÁÉÍÓÚÃÕÇA-Z][àèìòùáéíóúãõça-z]+((\s+|-)(d(as?|es?|os?)\s+|d\')?[ÀÈÌÒÙÁÉÍÓÚÃÕÇA-Z][àèìòùáéíóúãõça-z]+)*/g
+  const re = /[ÀÈÌÒÙÁÉÍÓÚÃÕÇA-Z][àèìòùáéíóúãõça-z]+((\s+|-)(d(as?|es?|os?)\s+|d')?[ÀÈÌÒÙÁÉÍÓÚÃÕÇA-Z]([.]|[àèìòùáéíóúãõça-z]*))*/g
+  const tokens = (typeof str === 'string') ? splitIntoWords(str).map(allToLowerExceptFirst) : str
+  const normalizado = tokens.join(' ')
+  return normalizado.match(re)
 }
-
-/**
- * Analisa o texto para substituir/tratar
- * todas as marcações encontradas
- * por seus valores válidos.
- * @param {string} strComTags
- * @return {string} O texto tratado (sem marcações)
- */
-function tratarTodasMarcacoes(strComTags) { // TODO: refatorar
-  // if (typeof strComTags !== 'string') return strComTags
-  let strSemTags = tratarMarcacoes(strComTags, MARCADORES.nomeproprio, allFirstToUpper)
-  strSemTags = tratarMarcacoes(strSemTags, MARCADORES.estado_com_preposicao, normalizarNomeEstado)
-  strSemTags = tratarMarcacoes(strSemTags, MARCADORES.codigo, strUtils.asCode)
-  strSemTags = tratarMarcacoes(strSemTags, MARCADORES.link, strUtils.asLink)
-  strSemTags = tratarMarcacoes(strSemTags, MARCADORES.italico, strUtils.asItalic)
-  strSemTags = tratarMarcacoes(strSemTags, MARCADORES.negrito, strUtils.asBold)
-
-  return strSemTags
-}
-
