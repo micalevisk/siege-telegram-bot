@@ -54,6 +54,25 @@ class Brain {
 
   /**
    *
+   * @param {number} unixTimestamp
+   * @return {nubmer}
+   */
+  obterAnoDe(unixTimestamp) {
+    return parser.getYearFromUnixTimestamp(unixTimestamp)
+  }
+
+  /**
+   *
+   * @param {str} texto
+   * @param {MessageEntity} entidades
+   * @return {string}
+   */
+  obterTextoComEntidades(texto, entidades) {
+    return parser.getWithTags(texto, entidades)
+  }
+
+  /**
+   *
    * @param {string} str
    * @param {number} fromIndex
    * @return {string}
