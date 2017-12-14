@@ -84,7 +84,7 @@ function initializeBot(bot, rsBrain) {
    * @return
    */
   function handlerRespostaComInlineKeyboard(ctx, inlineKeyboard) {
-    return ctx.reply(ctx.session.ultima_resposta_dada, Extra.markup(inlineKeyboard).HTML().inReplyTo(ctx.message.message_id))
+    return ctx.reply(ctx.session.ultima_resposta_dada, Object.assign({}, getExtraWithInReplyTo(ctx.message.message_id), Extra.markup(inlineKeyboard)) )
   }
 
   /**
@@ -201,7 +201,7 @@ function initializeBot(bot, rsBrain) {
 
         if (qtdVotos > 3) {
           return ctx.answerCbQuery('voto negativo computado!')
-            .then(() => ctx.editMessageText(ctx.session.ultima_resposta_dada, Extra.HTML()))
+            .then(() => ctx.editMessageText(ctx.session.ultima_resposta_dada, DEFAULT_REPLY_OPTIONS))
             .catch((err) => {
               console.log('[bot-incrementar_votos::error]', err)
               return ctx.deleteMessage() // sessão perdida
@@ -209,7 +209,7 @@ function initializeBot(bot, rsBrain) {
           }
 
         return ctx.answerCbQuery('resposta removida!!')
-          .then(() => ctx.editMessageText(`${strUtils.asItalic('Desculpe, não sei te responder...')}`, Extra.HTML()))
+          .then(() => ctx.editMessageText(`${strUtils.asItalic('Desculpe, não sei te responder...')}`, DEFAULT_REPLY_OPTIONS))
           .catch((err) => {
             console.log('[bot-incrementar_votos::error]', err)
             return ctx.deleteMessage() // sessão perdida
@@ -221,16 +221,16 @@ function initializeBot(bot, rsBrain) {
   bot.action('ensinar', (ctx) => {
     ctx.session.esperando_msg = true
     return ctx.answerCbQuery('😀 Opa! Estou esperando a sua resposta, tudo bem?', true)
-      .then(() => ctx.editMessageText(ctx.session.ultima_resposta_dada, Extra.HTML()))
+      .then(() => ctx.editMessageText(ctx.session.ultima_resposta_dada, DEFAULT_REPLY_OPTIONS))
       .catch((err) => {
         ctx.session.esperando_msg = false
         console.log('[bot-ensinar::error]', err)
-        return ctx.editMessageText('Desculpe, perdi sua mensagem...\n<b>Não</b> estou esperando sua resposta')
+        return ctx.editMessageText(`Desculpe, perdi sua mensagem...\n${strUtils.asBold('Não')} estou esperando sua resposta`, DEFAULT_REPLY_OPTIONS)
       })
   })
 
   bot.action('remover_opcoes', (ctx) => {
-    return ctx.editMessageText(ctx.session.ultima_resposta_dada, Extra.HTML())
+    return ctx.editMessageText(ctx.session.ultima_resposta_dada, DEFAULT_REPLY_OPTIONS)
       .catch((err) => {
         console.log('[bot-incrementar_votos::error]', err)
         return ctx.deleteMessage() // sessão perdida
