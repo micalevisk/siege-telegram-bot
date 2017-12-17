@@ -90,6 +90,7 @@ function initializeBot(bot, rsBrain) {
   /**
    *
    * @param {*} ctx
+   * @return
    */
   function handlerLerResposta(ctx) {
     const { session: { ultima_pergunta_identificada }, from: { username, id }, message: { date, text, message_id, entities } } = ctx
@@ -123,9 +124,6 @@ function initializeBot(bot, rsBrain) {
 
   /**
    *
-   * TODO:
-   * - adicionar verificaração se o retorno é pra resposta direta
-   * - adicionar módulo de aprendizado
    * @param {*} ctx
    * @return {promise} envio da resposta
    */
